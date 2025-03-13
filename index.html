@@ -19,6 +19,7 @@
       padding: 30px;
       border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: relative;
     }
     h1 { text-align: center; }
     .question { font-size: 1.2em; margin-bottom: 10px; }
@@ -38,11 +39,14 @@
       border-color: #f0a500;
     }
     #nav-table {
+      position: absolute;
+      top: 20px;
+      right: -150px;
+      width: 120px;
       display: grid;
-      grid-template-columns: repeat(10, auto);
+      grid-template-columns: repeat(5, auto);
       gap: 5px;
       justify-content: center;
-      margin-bottom: 20px;
     }
     .nav-btn {
       padding: 8px 12px;
@@ -59,6 +63,46 @@
       font-weight: bold;
     }
     #result-area { display: none; margin-top: 20px; }
+    #submit-btn {
+      margin-top: 20px;
+      background: #28a745;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 10px;
+      z-index: 1000;
+      width: 60%;
+      text-align: left;
+    }
+    #popup h2 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #popup-close {
+      background: red;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .wrong-answer {
+      color: red;
+      font-weight: bold;
+    }
     .hidden { display: none; }
   </style>
 </head>
@@ -80,10 +124,22 @@
     <div id="options" class="options"></div>
     <button id="prev-btn" class="nav-btn">이전 문제</button>
     <button id="next-btn" class="nav-btn">다음 문제</button>
+    <button id="submit-btn">채점하기</button>
     <div id="result-area">
       <h2>결과</h2>
       <p id="score-text"></p>
     </div>
+  </div>
+
+  <!-- 채점 결과 팝업 -->
+  <div id="popup">
+    <h2>
+      채점 결과
+      <button id="popup-close">X</button>
+    </h2>
+    <p id="popup-score"></p>
+    <ul id="wrong-questions"></ul>
+    <button id="popup-close-bottom">닫기</button>
   </div>
 
   <script>
@@ -99,10 +155,13 @@
     const optionsDiv = document.getElementById("options");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
-    const navTable = document.getElementById("nav-table");
-    const subjectTitle = document.getElementById("subject-title");
+    const submitBtn = document.getElementById("submit-btn");
+    const popup = document.getElementById("popup");
+    const popupScore = document.getElementById("popup-score");
+    const popupClose = document.getElementById("popup-close");
+    const popupCloseBottom = document.getElementById("popup-close-bottom");
+    const wrongQuestionsList = document.getElementById("wrong-questions");
 
-    // ✅ [1] 회차 버튼 자동 생성 (20~36회)
     function createSessionButtons() {
       for (let i = 20; i <= 36; i++) {
         const btn = document.createElement("button");
@@ -115,17 +174,11 @@
       }
     }
 
-    // ✅ [2] JSON 파일 자동 로드 (파일 선택 X)
     function loadQuestions(session) {
       const jsonFilePath = `https://haruto7777.github.io/cbt-quiz/${session}회차.json`;
 
       fetch(jsonFilePath)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(`HTTP 오류! 상태 코드: ${response.status}`);
-          }
-          return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
           questions = data;
           userAnswers = new Array(questions.length).fill(null);
@@ -133,75 +186,48 @@
           quizContainer.classList.remove("hidden");
           examTitle.textContent = `정수시설운영관리사 ${session}회_2급`;
           showQuestion(0);
-          updateNavTable();
         })
-        .catch(error => {
-          alert("문제를 불러오는 데 실패했습니다: " + error.message);
-        });
-    }
-
-    // ✅ [3] 과목명 표시
-    function getSubjectTitle(index) {
-      if (index < 20) return "1과목 수처리공정";
-      if (index < 40) return "2과목 수질분석 및 관리";
-      if (index < 60) return "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
-      return "4과목 정수시설 수리학";
+        .catch(error => alert("문제를 불러오는 데 실패했습니다: " + error.message));
     }
 
     function showQuestion(index) {
       currentQuestionIndex = index;
       const q = questions[index];
-      subjectTitle.textContent = getSubjectTitle(index);
       questionText.textContent = q.question;
       optionsDiv.innerHTML = "";
       q.options.forEach((option, idx) => {
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
-        if (userAnswers[index] === idx) {
-          btn.classList.add("selected");
-        }
         btn.addEventListener("click", function () {
           userAnswers[index] = idx;
           showQuestion(currentQuestionIndex);
         });
         optionsDiv.appendChild(btn);
       });
-
-      prevBtn.disabled = index === 0;
-      nextBtn.disabled = index === questions.length - 1;
-      updateNavTable();
     }
 
-    function updateNavTable() {
-      navTable.innerHTML = "";
-      for (let i = 0; i < questions.length; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i + 1;
-        btn.className = "nav-btn";
-        if (i === currentQuestionIndex) {
-          btn.classList.add("current");
+    submitBtn.addEventListener("click", function () {
+      let score = 0;
+      wrongQuestionsList.innerHTML = "";
+
+      questions.forEach((q, idx) => {
+        if (userAnswers[idx] === q.answer - 1) {
+          score++;
+        } else {
+          const li = document.createElement("li");
+          li.innerHTML = `<span class="wrong-answer">${idx + 1}번 문제</span> - 정답: ${q.options[q.answer - 1]}, 선택: ${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : "미선택"}`;
+          wrongQuestionsList.appendChild(li);
         }
-        btn.addEventListener("click", function () {
-          showQuestion(i);
-        });
-        navTable.appendChild(btn);
-      }
-    }
+      });
 
-    prevBtn.addEventListener("click", function () {
-      if (currentQuestionIndex > 0) {
-        showQuestion(currentQuestionIndex - 1);
-      }
+      popupScore.textContent = `총 점수: ${score} / ${questions.length}`;
+      popup.style.display = "block";
     });
 
-    nextBtn.addEventListener("click", function () {
-      if (currentQuestionIndex < questions.length - 1) {
-        showQuestion(currentQuestionIndex + 1);
-      }
-    });
+    popupClose.addEventListener("click", () => popup.style.display = "none");
+    popupCloseBottom.addEventListener("click", () => popup.style.display = "none");
 
-    // ✅ 초기 실행 시 회차 버튼 생성
     createSessionButtons();
   </script>
 </body>
