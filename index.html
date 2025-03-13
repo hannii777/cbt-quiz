@@ -58,24 +58,23 @@
       background: #f0a500;
       font-weight: bold;
     }
-    #file-upload { margin: 40px 0; }
     #result-area { display: none; margin-top: 20px; }
     #error-message { color: red; margin-top: 10px; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
 
-  <!-- 파일 선택 컨테이너 -->
-  <div class="container" id="upload-container">
+  <!-- 회차 선택 컨테이너 -->
+  <div class="container" id="select-container">
     <h1>정수시설운영관리사 CBT</h1>
-    <p>해당 회차에 맞는 파일을 선택해주세요.</p>
-    <input type="file" id="file-input" accept=".json">
-    <p id="error-message"></p>
+    <p>해당 회차를 선택해주세요.</p>
+    <div id="session-selection"></div>
   </div>
 
   <!-- CBT 퀴즈 컨테이너 (초기에는 숨김) -->
-  <div class="container" id="quiz-container" style="display:none;">
-    <h1>CBT 기출문제 풀이</h1>
+  <div class="container hidden" id="quiz-container">
+    <h1 id="exam-title">정수시설운영관리사 CBT</h1>
     <div id="nav-table"></div>
     <p id="subject-title"></p>
     <p class="question" id="question-text"></p>
@@ -93,39 +92,56 @@
     let currentQuestionIndex = 0;
     let userAnswers = [];
 
-    const fileInput = document.getElementById("file-input");
-    const uploadContainer = document.getElementById("upload-container");
+    const selectContainer = document.getElementById("select-container");
     const quizContainer = document.getElementById("quiz-container");
+    const examTitle = document.getElementById("exam-title");
+    const sessionSelection = document.getElementById("session-selection");
     const questionText = document.getElementById("question-text");
     const optionsDiv = document.getElementById("options");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
     const navTable = document.getElementById("nav-table");
     const subjectTitle = document.getElementById("subject-title");
-    const errorMessage = document.getElementById("error-message");
 
-    // JSON 파일 업로드 이벤트
-    fileInput.addEventListener("change", function(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          questions = JSON.parse(e.target.result);
+    // ✅ [1] 20회~36회 회차 버튼 생성
+    function createSessionButtons() {
+      for (let i = 20; i <= 36; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = `정수시설운영관리사 ${i}회_2급`;
+        btn.className = "nav-btn";
+        btn.addEventListener("click", function () {
+          loadQuestions(i);
+        });
+        sessionSelection.appendChild(btn);
+      }
+    }
+
+    // ✅ [2] JSON 파일 로드 함수 (GitHub Pages에서 해당 회차 JSON 불러오기)
+    function loadQuestions(session) {
+      const jsonFilePath = `https://haruto7777.github.io/cbt-quiz/${session}회차.json`;
+
+      fetch(jsonFilePath)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP 오류! 상태 코드: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          questions = data;
           userAnswers = new Array(questions.length).fill(null);
-          uploadContainer.style.display = "none";
-          quizContainer.style.display = "block";
+          selectContainer.style.display = "none";
+          quizContainer.classList.remove("hidden");
+          examTitle.textContent = `정수시설운영관리사 ${session}회_2급`;
           showQuestion(0);
           updateNavTable();
-        } catch (err) {
-          errorMessage.textContent = "JSON 파일 로드 오류: " + err.message;
-          console.error(err);
-        }
-      };
-      reader.readAsText(file);
-    });
+        })
+        .catch(error => {
+          alert("문제를 불러오는 데 실패했습니다: " + error.message);
+        });
+    }
 
-    // 과목명 표시
+    // ✅ [3] 과목명 표시
     function getSubjectTitle(index) {
       if (index < 20) return "1과목 수처리공정";
       if (index < 40) return "2과목 수질분석 및 관리";
@@ -146,7 +162,7 @@
         if (userAnswers[index] === idx) {
           btn.classList.add("selected");
         }
-        btn.addEventListener("click", function() {
+        btn.addEventListener("click", function () {
           userAnswers[index] = idx;
           showQuestion(currentQuestionIndex);
         });
@@ -167,24 +183,27 @@
         if (i === currentQuestionIndex) {
           btn.classList.add("current");
         }
-        btn.addEventListener("click", function() {
+        btn.addEventListener("click", function () {
           showQuestion(i);
         });
         navTable.appendChild(btn);
       }
     }
 
-    prevBtn.addEventListener("click", function() {
+    prevBtn.addEventListener("click", function () {
       if (currentQuestionIndex > 0) {
         showQuestion(currentQuestionIndex - 1);
       }
     });
 
-    nextBtn.addEventListener("click", function() {
+    nextBtn.addEventListener("click", function () {
       if (currentQuestionIndex < questions.length - 1) {
         showQuestion(currentQuestionIndex + 1);
       }
     });
+
+    // 초기 실행 시 회차 버튼 생성
+    createSessionButtons();
   </script>
 </body>
 </html>
