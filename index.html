@@ -102,7 +102,7 @@
     const navTable = document.getElementById("nav-table");
     const subjectTitle = document.getElementById("subject-title");
 
-    // ✅ [1] 20회~36회 회차 버튼 생성
+    // ✅ [1] 회차 버튼 자동 생성 (20~36회)
     function createSessionButtons() {
       for (let i = 20; i <= 36; i++) {
         const btn = document.createElement("button");
@@ -115,7 +115,7 @@
       }
     }
 
-    // ✅ [2] JSON 파일 로드 함수 (GitHub Pages에서 해당 회차 JSON 불러오기)
+    // ✅ [2] JSON 파일 자동 로드 (파일 선택 X)
     function loadQuestions(session) {
       const jsonFilePath = `https://haruto7777.github.io/cbt-quiz/${session}회차.json`;
 
@@ -201,7 +201,7 @@
       }
     });
 
-    // 초기 실행 시 회차 버튼 생성
+    // ✅ 초기 실행 시 회차 버튼 생성
     createSessionButtons();
   </script>
 </body>
