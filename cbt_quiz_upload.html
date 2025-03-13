@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>정수시설운영관리사 CBT</title>
+  <!-- 구글 폰트 (Roboto) 추가 -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    /* 상단 헤더: 왼쪽 정렬 */
+    #main-header {
+      text-align: left;
+      padding: 20px 40px;
+      font-size: 24px;
+      font-weight: 500;
+    }
+    /* 파일 업로드 컨테이너 */
+    .container {
+      position: relative;
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 40px 40px 60px 40px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+    /* 회차 선택 드롭다운 */
+    #session-select {
+      margin: 20px auto;
+      display: block;
+      font-size: 16px;
+      padding: 8px;
+    }
+    /* 문제 영역 - 과목 헤더를 삭제하고 JSON 파일에 담긴 문제들만 표시 */
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    .details { margin-top: 20px; }
+    .details p { margin: 6px 0; }
+    .options {
+      margin-bottom: 20px;
+      max-width: 600px;
+      text-align: left;
+    }
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .option-btn:hover { background: #f0f0f0; }
+    .option-btn.selected {
+      background: #ffeb99;
+      border-color: #f0a500;
+    }
+    /* 이전/다음 버튼 - 문제 영역 내부 좌측/우측 하단 */
+    #prev-btn, #next-btn {
+      position: absolute;
+      bottom: 20px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #prev-btn:disabled, #next-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #prev-btn { left: 40px; }
+    #next-btn { right: 40px; }
+    /* 오른쪽 고정 패널: 문제 번호 네비게이션 및 채점하기 버튼 */
+    #right-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: none;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    /* 문제 번호 네비게이션 표: 10개씩 가로 배열 */
+    #nav-table {
+      display: grid;
+      grid-template-columns: repeat(10, auto);
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .nav-btn {
+      padding: 4px 6px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      min-width: 25px;
+      font-size: 12px;
+    }
+    .nav-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .nav-btn.current {
+      background: #f0a500;
+      font-weight: bold;
+    }
+    #submit-btn {
+      padding: 8px 12px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+    }
+    #result-area { display: none; margin-top: 20px; text-align: center; }
+    /* 모달창 스타일 */
+    #modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #modal {
+      position: relative;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #modal h2 {
+      margin-top: 0;
+      text-align: left;
+      position: relative;
+      padding-right: 30px;
+    }
+    #modal .close-x {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      color: #333;
+    }
+    #modal button {
+      padding: 8px 16px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 상단 헤더 (좌측 정렬) -->
+  <div id="main-header">정수시설운영관리사 CBT</div>
+
+  <!-- 회차 선택 컨테이너 -->
+  <div id="file-upload" class="container" style="max-width:600px;">
+    <p style="text-align:center;">정수시설운영관리사 2급 20회부터 36회 중에서 해당 회차 파일을 선택해주세요.</p>
+    <select id="session-select">
+      <option value="정수시설운영관리사 20회_2급.json">정수시설운영관리사 20회_2급</option>
+      <option value="정수시설운영관리사 21회_2급.json">정수시설운영관리사 21회_2급</option>
+      <option value="정수시설운영관리사 22회_2급.json">정수시설운영관리사 22회_2급</option>
+      <option value="정수시설운영관리사 23회_2급.json">정수시설운영관리사 23회_2급</option>
+      <option value="정수시설운영관리사 24회_2급.json">정수시설운영관리사 24회_2급</option>
+      <option value="정수시설운영관리사 25회_2급.json">정수시설운영관리사 25회_2급</option>
+      <option value="정수시설운영관리사 26회_2급.json">정수시설운영관리사 26회_2급</option>
+      <option value="정수시설운영관리사 27회_2급.json">정수시설운영관리사 27회_2급</option>
+      <option value="정수시설운영관리사 28회_2급.json">정수시설운영관리사 28회_2급</option>
+      <option value="정수시설운영관리사 29회_2급.json">정수시설운영관리사 29회_2급</option>
+      <option value="정수시설운영관리사 30회_2급.json">정수시설운영관리사 30회_2급</option>
+      <option value="정수시설운영관리사 31회_2급.json">정수시설운영관리사 31회_2급</option>
+      <option value="정수시설운영관리사 32회_2급.json">정수시설운영관리사 32회_2급</option>
+      <option value="정수시설운영관리사 33회_2급.json">정수시설운영관리사 33회_2급</option>
+      <option value="정수시설운영관리사 34회_2급.json">정수시설운영관리사 34회_2급</option>
+      <option value="정수시설운영관리사 35회_2급.json">정수시설운영관리사 35회_2급</option>
+      <option value="정수시설운영관리사 36회_2급.json">정수시설운영관리사 36회_2급</option>
+    </select>
+    <br><br>
+    <button id="load-session">파일 불러오기</button>
+  </div>
+
+  <!-- CBT 퀴즈 컨테이너 (초기에는 숨김) -->
+  <div class="container" id="quiz-container" style="display:none;">
+    <div id="subject-header"></div>
+    <div id="question-area">
+      <p class="question" id="question-text"></p>
+      <div id="details" class="details"></div>
+      <div id="options" class="options"></div>
+    </div>
+    <!-- 이전/다음 버튼은 문제 영역 내부 좌측/우측 하단에 배치됨 -->
+    <button id="prev-btn">이전 문제</button>
+    <button id="next-btn">다음 문제</button>
+    <div id="result-area">
+      <h2>결과</h2>
+      <p id="score-text"></p>
+    </div>
+  </div>
+
+  <!-- 오른쪽 고정 패널: 문제 번호 네비게이션 및 채점하기 버튼 -->
+  <div id="right-panel">
+    <div id="nav-table"></div>
+    <button class="nav-btn" id="submit-btn">채점하기</button>
+  </div>
+
+  <!-- 채점 결과 모달창 -->
+  <div id="modal-overlay">
+    <div id="modal">
+      <h2>
+        채점 결과
+        <button class="close-x" id="modal-close">&times;</button>
+      </h2>
+      <div id="modal-content"></div>
+      <button id="close-modal">닫기</button>
+    </div>
+  </div>
+
+  <script>
+    let questions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+
+    const sessionSelect = document.getElementById("session-select");
+    const loadSessionBtn = document.getElementById("load-session");
+    const uploadContainer = document.getElementById("file-upload");
+    const quizContainer = document.getElementById("quiz-container");
+    const subjectHeader = document.getElementById("subject-header");
+    const questionText = document.getElementById("question-text");
+    const detailsDiv = document.getElementById("details");
+    const optionsDiv = document.getElementById("options");
+    const prevBtn = document.getElementById("prev-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const submitBtn = document.getElementById("submit-btn");
+    const resultArea = document.getElementById("result-area");
+    const scoreText = document.getElementById("score-text");
+    const navTable = document.getElementById("nav-table");
+    const rightPanel = document.getElementById("right-panel");
+    const modalOverlay = document.getElementById("modal-overlay");
+    const modalContent = document.getElementById("modal-content");
+    const closeModalBtn = document.getElementById("close-modal");
+    const modalCloseX = document.getElementById("modal-close");
+
+    // 회차 선택 버튼 클릭 이벤트 처리
+    loadSessionBtn.addEventListener("click", function() {
+      const sessionFile = sessionSelect.value;
+      fetch(sessionFile)
+        .then(response => response.json())
+        .then(data => {
+          questions = data;
+          userAnswers = new Array(questions.length).fill(null);
+          uploadContainer.style.display = "none";
+          quizContainer.style.display = "block";
+          rightPanel.style.display = "block";
+          showQuestion(0);
+          updateNavTable();
+        })
+        .catch(err => {
+          alert("JSON 파일 로드 오류: " + err.message);
+          console.error(err);
+        });
+    });
+
+    // 과목 헤더 업데이트 함수
+    function updateSubjectHeader() {
+      let subject = "";
+      const qid = questions[currentQuestionIndex].id;
+      // 2급 시험으로 가정
+      if (qid >= 1 && qid <= 20) {
+        subject = "1과목 수처리공정";
+      } else if (qid >= 21 && qid <= 40) {
+        subject = "2과목 수질분석 및 관리";
+      } else if (qid >= 41 && qid <= 60) {
+        subject = "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
+      } else if (qid >= 61 && qid <= 80) {
+        subject = "4과목 정수시설 수리학";
+      }
+      subjectHeader.textContent = subject;
+    }
+
+    function showQuestion(index) {
+      currentQuestionIndex = index;
+      const q = questions[index];
+      questionText.textContent = q.question;
+      
+      // 과목 헤더 업데이트
+      updateSubjectHeader();
+      
+      // details 표시
+      detailsDiv.innerHTML = "";
+      if (q.details && q.details.length > 0) {
+        q.details.forEach(detail => {
+          const p = document.createElement("p");
+          p.textContent = detail;
+          detailsDiv.appendChild(p);
+        });
+      }
+      
+      // 선택지 표시
+      optionsDiv.innerHTML = "";
+      if (q.options && q.options.length > 0) {
+        q.options.forEach((option, idx) => {
+          const btn = document.createElement("button");
+          btn.textContent = option;
+          btn.className = "option-btn";
+          if (userAnswers[index] === idx) {
+            btn.classList.add("selected");
+          }
+          btn.addEventListener("click", function() {
+            userAnswers[index] = idx;
+            updateOptions();
+          });
+          optionsDiv.appendChild(btn);
+        });
+      }
+      
+      updateNavigation();
+      updateNavTable();
+    }
+
+    function updateOptions() {
+      showQuestion(currentQuestionIndex);
+    }
+
+    function updateNavigation() {
+      prevBtn.disabled = currentQuestionIndex === 0;
+      nextBtn.disabled = currentQuestionIndex === questions.length - 1;
+    }
+
+    function updateNavTable() {
+      navTable.innerHTML = "";
+      for (let i = 0; i < questions.length; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i + 1;
+        btn.className = "nav-btn";
+        // 답안 미선택 시 버튼 색상을 연한 빨강으로 설정
+        if (userAnswers[i] === null) {
+          btn.style.background = "#ffcccc";
+        }
+        if (i === currentQuestionIndex) {
+          btn.classList.add("current");
+        }
+        btn.addEventListener("click", function() {
+          showQuestion(i);
+        });
+        navTable.appendChild(btn);
+      }
+    }
+
+    prevBtn.addEventListener("click", function() {
+      if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+      }
+    });
+
+    nextBtn.addEventListener("click", function() {
+      if (currentQuestionIndex < questions.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+      }
+    });
+
+    submitBtn.addEventListener("click", function() {
+      let score = 0;
+      let wrongDetails = "";
+      questions.forEach((q, idx) => {
+        if (userAnswers[idx] !== null && userAnswers[idx] === q.answer - 1) {
+          score++;
+        } else {
+          wrongDetails += `<p><strong>문제 ${q.id}:</strong> ${q.question}</p>`;
+          if (q.options && q.options.length > 0) {
+            wrongDetails += `<p>내가 선택한 답: ${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : "미선택"}</p>`;
+            wrongDetails += `<p>정답: ${q.options[q.answer - 1]}</p>`;
+          }
+          wrongDetails += `<hr>`;
+        }
+      });
+      modalContent.innerHTML = `<p>총 점수: ${score} / ${questions.length}</p>` + wrongDetails;
+      modalOverlay.style.display = "flex";
+    });
+
+    closeModalBtn.addEventListener("click", function() {
+      modalOverlay.style.display = "none";
+    });
+    modalCloseX.addEventListener("click", function() {
+      modalOverlay.style.display = "none";
+    });
+  </script>
+</body>
+</html>
