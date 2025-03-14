@@ -38,11 +38,12 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
+    /* 내비게이션 버튼 영역 */
     #nav-table {
       position: absolute;
       top: 20px;
       right: 0;
-      width: 120px;
+      width: 150px;
       display: grid;
       grid-template-columns: repeat(5, auto);
       gap: 5px;
@@ -57,14 +58,17 @@
       border-radius: 5px;
       cursor: pointer;
       min-width: 30px;
+      font-size: 0.9em;
     }
     .nav-btn.current {
       background: #f0a500;
       font-weight: bold;
     }
-    #result-area { display: none; margin-top: 20px; }
+    /* 제출버튼 오른쪽 상단 고정 (원하는 경우 위치 조정 가능) */
     #submit-btn {
-      margin-top: 20px;
+      position: absolute;
+      top: 20px;
+      right: 170px;
       background: #28a745;
       color: #fff;
       padding: 10px 15px;
@@ -72,6 +76,18 @@
       border-radius: 5px;
       cursor: pointer;
     }
+    /* 이전, 다음 버튼은 화면 하단에 배치 */
+    #prev-btn, #next-btn {
+      margin: 10px;
+      background: #007bff;
+      color: #fff;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #result-area { display: none; margin-top: 20px; }
+    /* 채점 결과 팝업 */
     #popup {
       display: none;
       position: fixed;
@@ -85,13 +101,15 @@
       z-index: 1000;
       width: 60%;
       text-align: left;
+      max-height: 80vh;
+      overflow-y: auto;
     }
     #popup h2 {
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    #popup-close {
+    #popup-close, #popup-close-bottom {
       background: red;
       color: white;
       border: none;
@@ -122,8 +140,10 @@
     <p id="subject-title"></p>
     <p class="question" id="question-text"></p>
     <div id="options" class="options"></div>
-    <button id="prev-btn" class="nav-btn">이전 문제</button>
-    <button id="next-btn" class="nav-btn">다음 문제</button>
+    <div>
+      <button id="prev-btn">이전 문제</button>
+      <button id="next-btn">다음 문제</button>
+    </div>
     <button id="submit-btn">채점하기</button>
     <div id="result-area">
       <h2>결과</h2>
@@ -161,6 +181,7 @@
     const popupClose = document.getElementById("popup-close");
     const popupCloseBottom = document.getElementById("popup-close-bottom");
     const wrongQuestionsList = document.getElementById("wrong-questions");
+    const navTable = document.getElementById("nav-table");
 
     function createSessionButtons() {
       for (let i = 20; i <= 36; i++) {
@@ -185,9 +206,36 @@
           selectContainer.style.display = "none";
           quizContainer.classList.remove("hidden");
           examTitle.textContent = `정수시설운영관리사 ${session}회_2급`;
+          createNavButtons();
           showQuestion(0);
         })
         .catch(error => alert("문제를 불러오는 데 실패했습니다: " + error.message));
+    }
+
+    // 내비게이션 버튼 생성 함수 (80문제 내비게이션 복원)
+    function createNavButtons() {
+      navTable.innerHTML = "";
+      for (let i = 0; i < questions.length; i++) {
+        const btn = document.createElement("button");
+        btn.textContent = i + 1;
+        btn.className = "nav-btn";
+        btn.addEventListener("click", function () {
+          showQuestion(i);
+        });
+        navTable.appendChild(btn);
+      }
+      updateNavHighlight();
+    }
+
+    function updateNavHighlight() {
+      const navButtons = navTable.querySelectorAll(".nav-btn");
+      navButtons.forEach((btn, index) => {
+        if (index === currentQuestionIndex) {
+          btn.classList.add("current");
+        } else {
+          btn.classList.remove("current");
+        }
+      });
     }
 
     function showQuestion(index) {
@@ -199,28 +247,51 @@
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
+        // 만약 이전에 선택한 답이 있다면 표시
+        if(userAnswers[index] === idx) {
+          btn.classList.add("selected");
+        }
         btn.addEventListener("click", function () {
           userAnswers[index] = idx;
-          showQuestion(currentQuestionIndex);
+          // 버튼 선택 상태 갱신
+          const optionButtons = optionsDiv.querySelectorAll("button");
+          optionButtons.forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          updateNavHighlight();
         });
         optionsDiv.appendChild(btn);
       });
+      updateNavHighlight();
     }
 
+    // 이전 문제 버튼 이벤트
+    prevBtn.addEventListener("click", function () {
+      if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+      }
+    });
+    // 다음 문제 버튼 이벤트
+    nextBtn.addEventListener("click", function () {
+      if (currentQuestionIndex < questions.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+      }
+    });
+
+    // 제출 시 모든 문제에 대해 선택한 답과 정답을 팝업창에 표시
     submitBtn.addEventListener("click", function () {
       let score = 0;
       wrongQuestionsList.innerHTML = "";
-
       questions.forEach((q, idx) => {
-        if (userAnswers[idx] === q.answer - 1) {
+        let selectedIdx = userAnswers[idx];
+        let selectedText = selectedIdx !== null ? q.options[selectedIdx] : "미선택";
+        let correctText = q.options[q.answer - 1];
+        if (selectedIdx === q.answer - 1) {
           score++;
-        } else {
-          const li = document.createElement("li");
-          li.innerHTML = `<span class="wrong-answer">${idx + 1}번 문제</span> - 정답: ${q.options[q.answer - 1]}, 선택: ${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : "미선택"}`;
-          wrongQuestionsList.appendChild(li);
         }
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${idx + 1}번 문제:</strong> 선택: ${selectedText}, 정답: ${correctText}`;
+        wrongQuestionsList.appendChild(li);
       });
-
       popupScore.textContent = `총 점수: ${score} / ${questions.length}`;
       popup.style.display = "block";
     });
