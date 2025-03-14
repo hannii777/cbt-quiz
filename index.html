@@ -4,301 +4,437 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>정수시설운영관리사 CBT</title>
+  <!-- 구글 폰트 (Roboto) 추가 -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #f3f3f3;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
       margin: 0;
-      padding: 20px;
-      text-align: center;
+      padding: 0;
+      color: #333;
     }
-    .container {
+    /* 상단 헤더 */
+    #main-header {
+      text-align: center;
+      padding: 20px 0;
+      font-size: 26px;
+      font-weight: 500;
+    }
+    /* 회차 선택 컨테이너 */
+    #session-container {
       max-width: 800px;
       margin: 20px auto;
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      position: relative;
+      text-align: center;
     }
-    h1 { text-align: center; }
-    .question { font-size: 1.2em; margin-bottom: 10px; }
-    .options button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background: #e0e0e0;
-      cursor: pointer;
-    }
-    .options button.selected {
-      background: #ffeb99;
-      border-color: #f0a500;
-    }
-    /* 내비게이션 버튼 영역 */
-    #nav-table {
-      position: absolute;
-      top: 20px;
-      right: 0;
-      width: 150px;
-      display: grid;
-      grid-template-columns: repeat(5, auto);
-      gap: 5px;
-      justify-content: center;
-    }
-    .nav-btn {
-      padding: 8px 12px;
-      margin: 3px;
+    #session-selection button {
+      margin: 5px;
+      padding: 10px 15px;
       background: #007bff;
       color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      min-width: 30px;
-      font-size: 0.9em;
+    }
+    /* 문제 영역 컨테이너 */
+    #quiz-container {
+      position: relative;
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 40px 40px 60px 40px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none;
+      overflow-y: auto;
+    }
+    /* 과목 헤더 (문제 상단에 과목 표시) */
+    #subject-header {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: #007bff;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+    .details {
+      margin-top: 20px;
+    }
+    .details p {
+      margin: 6px 0;
+    }
+    /* 선택지 영역 */
+    .options {
+      margin-bottom: 20px;
+      max-width: 600px;
+      text-align: left;
+    }
+    .option-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .option-btn:hover {
+      background: #f0f0f0;
+    }
+    .option-btn.selected {
+      background: #ffeb99;
+      border-color: #f0a500;
+    }
+    /* 이전/다음 버튼 - 문제 영역 내부 좌측/우측 하단 */
+    #prev-btn, #next-btn {
+      position: absolute;
+      bottom: 20px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #prev-btn:disabled, #next-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #prev-btn { left: 40px; }
+    #next-btn { right: 40px; }
+    /* 오른쪽 고정 패널: 문제 번호 네비게이션 및 채점하기 버튼 */
+    #right-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: none;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    /* 문제 번호 네비게이션 표: 10개씩 가로 배열 */
+    #nav-table {
+      display: grid;
+      grid-template-columns: repeat(10, auto);
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .nav-btn {
+      padding: 4px 6px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      min-width: 25px;
+      font-size: 12px;
+    }
+    .nav-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
     .nav-btn.current {
       background: #f0a500;
       font-weight: bold;
     }
-    /* 제출버튼 오른쪽 상단 고정 (원하는 경우 위치 조정 가능) */
     #submit-btn {
-      position: absolute;
-      top: 20px;
-      right: 170px;
-      background: #28a745;
-      color: #fff;
-      padding: 10px 15px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    /* 이전, 다음 버튼은 화면 하단에 배치 */
-    #prev-btn, #next-btn {
-      margin: 10px;
+      padding: 8px 12px;
       background: #007bff;
       color: #fff;
-      padding: 10px 15px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 14px;
+      width: 100%;
     }
-    #result-area { display: none; margin-top: 20px; }
-    /* 채점 결과 팝업 */
-    #popup {
-      display: none;
+    /* 모달창 스타일 */
+    #modal-overlay {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
-      z-index: 1000;
-      width: 60%;
-      text-align: left;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-    #popup h2 {
-      display: flex;
-      justify-content: space-between;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
       align-items: center;
+      z-index: 1000;
     }
-    #popup-close, #popup-close-bottom {
-      background: red;
-      color: white;
+    #modal {
+      position: relative;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #modal h2 {
+      margin-top: 0;
+      text-align: left;
+      position: relative;
+      padding-right: 30px;
+    }
+    /* 닫기 버튼 (X) */
+    #modal .close-x {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: transparent;
       border: none;
+      font-size: 24px;
+      line-height: 1;
       cursor: pointer;
-      padding: 5px 10px;
+      color: #333;
+    }
+    #modal button {
+      padding: 8px 16px;
+      background: #007bff;
+      color: #fff;
+      border: none;
       border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
     }
-    .wrong-answer {
-      color: red;
-      font-weight: bold;
-    }
-    .hidden { display: none; }
   </style>
 </head>
 <body>
-
+  <!-- 상단 헤더 -->
+  <div id="main-header">
+    정수시설운영관리사 CBT
+  </div>
+  
   <!-- 회차 선택 컨테이너 -->
-  <div class="container" id="select-container">
-    <h1>정수시설운영관리사 CBT</h1>
+  <div id="session-container">
     <p>풀고 싶은 회차를 선택하세요.</p>
     <div id="session-selection"></div>
   </div>
-
+  
   <!-- CBT 퀴즈 컨테이너 (초기에는 숨김) -->
-  <div class="container hidden" id="quiz-container">
-    <h1 id="exam-title">정수시설운영관리사 CBT</h1>
+  <div id="quiz-container">
+    <!-- 과목 헤더 (문제 번호에 따라 변경) -->
+    <div id="subject-header"></div>
+    <div id="question-area">
+      <p class="question" id="question-text"></p>
+      <div id="details" class="details"></div>
+      <div id="options" class="options"></div>
+    </div>
+    <!-- 이전/다음 버튼 (문제 영역 내부 좌측/우측 하단) -->
+    <button id="prev-btn">이전 문제</button>
+    <button id="next-btn">다음 문제</button>
+  </div>
+  
+  <!-- 오른쪽 고정 패널: 문제 번호 네비게이션 및 채점하기 버튼 -->
+  <div id="right-panel">
     <div id="nav-table"></div>
-    <p id="subject-title"></p>
-    <p class="question" id="question-text"></p>
-    <div id="options" class="options"></div>
-    <div>
-      <button id="prev-btn">이전 문제</button>
-      <button id="next-btn">다음 문제</button>
-    </div>
-    <button id="submit-btn">채점하기</button>
-    <div id="result-area">
-      <h2>결과</h2>
-      <p id="score-text"></p>
+    <button class="nav-btn" id="submit-btn">채점하기</button>
+  </div>
+  
+  <!-- 채점 결과 모달창 -->
+  <div id="modal-overlay">
+    <div id="modal">
+      <h2>
+        채점 결과
+        <button class="close-x" id="modal-close">&times;</button>
+      </h2>
+      <div id="modal-content"></div>
+      <button id="close-modal">닫기</button>
     </div>
   </div>
-
-  <!-- 채점 결과 팝업 -->
-  <div id="popup">
-    <h2>
-      채점 결과
-      <button id="popup-close">X</button>
-    </h2>
-    <p id="popup-score"></p>
-    <ul id="wrong-questions"></ul>
-    <button id="popup-close-bottom">닫기</button>
-  </div>
-
+  
   <script>
     let questions = [];
     let currentQuestionIndex = 0;
     let userAnswers = [];
 
-    const selectContainer = document.getElementById("select-container");
-    const quizContainer = document.getElementById("quiz-container");
-    const examTitle = document.getElementById("exam-title");
     const sessionSelection = document.getElementById("session-selection");
+    const sessionContainer = document.getElementById("session-container");
+    const quizContainer = document.getElementById("quiz-container");
+    const subjectHeader = document.getElementById("subject-header");
     const questionText = document.getElementById("question-text");
+    const detailsDiv = document.getElementById("details");
     const optionsDiv = document.getElementById("options");
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
-    const submitBtn = document.getElementById("submit-btn");
-    const popup = document.getElementById("popup");
-    const popupScore = document.getElementById("popup-score");
-    const popupClose = document.getElementById("popup-close");
-    const popupCloseBottom = document.getElementById("popup-close-bottom");
-    const wrongQuestionsList = document.getElementById("wrong-questions");
     const navTable = document.getElementById("nav-table");
+    const rightPanel = document.getElementById("right-panel");
+    const submitBtn = document.getElementById("submit-btn");
+    const modalOverlay = document.getElementById("modal-overlay");
+    const modalContent = document.getElementById("modal-content");
+    const closeModalBtn = document.getElementById("close-modal");
+    const modalCloseX = document.getElementById("modal-close");
 
+    // 회차 선택 버튼 생성 (예: 20회부터 36회까지)
     function createSessionButtons() {
       for (let i = 20; i <= 36; i++) {
         const btn = document.createElement("button");
         btn.textContent = `정수시설운영관리사 ${i}회_2급`;
-        btn.className = "nav-btn";
-        btn.addEventListener("click", function () {
+        btn.addEventListener("click", function() {
           loadQuestions(i);
         });
         sessionSelection.appendChild(btn);
       }
     }
-
+    
+    // 회차 선택 시 GitHub에서 해당 회차 JSON 파일 불러오기
     function loadQuestions(session) {
       const jsonFilePath = `https://haruto7777.github.io/cbt-quiz/${session}회차.json`;
-
       fetch(jsonFilePath)
         .then(response => response.json())
         .then(data => {
           questions = data;
           userAnswers = new Array(questions.length).fill(null);
-          selectContainer.style.display = "none";
-          quizContainer.classList.remove("hidden");
-          examTitle.textContent = `정수시설운영관리사 ${session}회_2급`;
-          createNavButtons();
+          // 회차 선택 영역은 숨기고 퀴즈 인터페이스와 오른쪽 패널 표시
+          sessionContainer.style.display = "none";
+          quizContainer.style.display = "block";
+          rightPanel.style.display = "block";
+          // 초기 문제 표시 및 내비게이션 생성
           showQuestion(0);
+          updateNavTable();
         })
         .catch(error => alert("문제를 불러오는 데 실패했습니다: " + error.message));
     }
-
-    // 내비게이션 버튼 생성 함수 (80문제 내비게이션 복원)
-    function createNavButtons() {
+    
+    // 과목 헤더 업데이트 (문제 id에 따라 과목 분류)
+    function updateSubjectHeader() {
+      let subject = "";
+      const qid = questions[currentQuestionIndex].id;
+      if (qid >= 1 && qid <= 20) {
+        subject = "1과목 수처리공정";
+      } else if (qid >= 21 && qid <= 40) {
+        subject = "2과목 수질분석 및 관리";
+      } else if (qid >= 41 && qid <= 60) {
+        subject = "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
+      } else if (qid >= 61 && qid <= 80) {
+        subject = "4과목 정수시설 수리학";
+      }
+      subjectHeader.textContent = subject;
+    }
+    
+    // 문제 표시
+    function showQuestion(index) {
+      currentQuestionIndex = index;
+      const q = questions[index];
+      questionText.textContent = q.question;
+      
+      updateSubjectHeader();
+      
+      // 세부 설명(있는 경우) 표시
+      detailsDiv.innerHTML = "";
+      if (q.details && q.details.length > 0) {
+        q.details.forEach(detail => {
+          const p = document.createElement("p");
+          p.textContent = detail;
+          detailsDiv.appendChild(p);
+        });
+      }
+      
+      // 선택지 표시
+      optionsDiv.innerHTML = "";
+      if (q.options && q.options.length > 0) {
+        q.options.forEach((option, idx) => {
+          const btn = document.createElement("button");
+          btn.textContent = option;
+          btn.className = "option-btn";
+          if (userAnswers[index] === idx) {
+            btn.classList.add("selected");
+          }
+          btn.addEventListener("click", function() {
+            userAnswers[index] = idx;
+            updateOptions();
+          });
+          optionsDiv.appendChild(btn);
+        });
+      }
+      
+      updateNavigation();
+      updateNavTable();
+    }
+    
+    function updateOptions() {
+      showQuestion(currentQuestionIndex);
+    }
+    
+    // 이전/다음 버튼 활성/비활성화
+    function updateNavigation() {
+      prevBtn.disabled = currentQuestionIndex === 0;
+      nextBtn.disabled = currentQuestionIndex === questions.length - 1;
+    }
+    
+    // 오른쪽 내비게이션 테이블 업데이트 (80문제 네비게이션)
+    function updateNavTable() {
       navTable.innerHTML = "";
       for (let i = 0; i < questions.length; i++) {
         const btn = document.createElement("button");
         btn.textContent = i + 1;
         btn.className = "nav-btn";
-        btn.addEventListener("click", function () {
+        // 미선택 문제는 연한 빨간색 배경 처리
+        if (userAnswers[i] === null) {
+          btn.style.background = "#ffcccc";
+        }
+        if (i === currentQuestionIndex) {
+          btn.classList.add("current");
+        }
+        btn.addEventListener("click", function() {
           showQuestion(i);
         });
         navTable.appendChild(btn);
       }
-      updateNavHighlight();
     }
-
-    function updateNavHighlight() {
-      const navButtons = navTable.querySelectorAll(".nav-btn");
-      navButtons.forEach((btn, index) => {
-        if (index === currentQuestionIndex) {
-          btn.classList.add("current");
-        } else {
-          btn.classList.remove("current");
-        }
-      });
-    }
-
-    function showQuestion(index) {
-      currentQuestionIndex = index;
-      const q = questions[index];
-      questionText.textContent = q.question;
-      optionsDiv.innerHTML = "";
-      q.options.forEach((option, idx) => {
-        const btn = document.createElement("button");
-        btn.textContent = option;
-        btn.className = "option-btn";
-        // 만약 이전에 선택한 답이 있다면 표시
-        if(userAnswers[index] === idx) {
-          btn.classList.add("selected");
-        }
-        btn.addEventListener("click", function () {
-          userAnswers[index] = idx;
-          // 버튼 선택 상태 갱신
-          const optionButtons = optionsDiv.querySelectorAll("button");
-          optionButtons.forEach(b => b.classList.remove("selected"));
-          btn.classList.add("selected");
-          updateNavHighlight();
-        });
-        optionsDiv.appendChild(btn);
-      });
-      updateNavHighlight();
-    }
-
-    // 이전 문제 버튼 이벤트
-    prevBtn.addEventListener("click", function () {
+    
+    // 이전/다음 버튼 이벤트
+    prevBtn.addEventListener("click", function() {
       if (currentQuestionIndex > 0) {
         showQuestion(currentQuestionIndex - 1);
       }
     });
-    // 다음 문제 버튼 이벤트
-    nextBtn.addEventListener("click", function () {
+    nextBtn.addEventListener("click", function() {
       if (currentQuestionIndex < questions.length - 1) {
         showQuestion(currentQuestionIndex + 1);
       }
     });
-
-    // 제출 시 모든 문제에 대해 선택한 답과 정답을 팝업창에 표시
-    submitBtn.addEventListener("click", function () {
+    
+    // 채점하기 버튼 클릭 시 모달창으로 상세 채점 결과 표시
+    submitBtn.addEventListener("click", function() {
       let score = 0;
-      wrongQuestionsList.innerHTML = "";
+      let wrongDetails = "";
       questions.forEach((q, idx) => {
-        let selectedIdx = userAnswers[idx];
-        let selectedText = selectedIdx !== null ? q.options[selectedIdx] : "미선택";
-        let correctText = q.options[q.answer - 1];
-        if (selectedIdx === q.answer - 1) {
+        if (userAnswers[idx] !== null && userAnswers[idx] === q.answer - 1) {
           score++;
+        } else {
+          wrongDetails += `<p><strong>문제 ${q.id}:</strong> ${q.question}</p>`;
+          if (q.options && q.options.length > 0) {
+            wrongDetails += `<p>내가 선택한 답: ${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : "미선택"}</p>`;
+            wrongDetails += `<p>정답: ${q.options[q.answer - 1]}</p>`;
+          }
+          wrongDetails += `<hr>`;
         }
-        const li = document.createElement("li");
-        li.innerHTML = `<strong>${idx + 1}번 문제:</strong> 선택: ${selectedText}, 정답: ${correctText}`;
-        wrongQuestionsList.appendChild(li);
       });
-      popupScore.textContent = `총 점수: ${score} / ${questions.length}`;
-      popup.style.display = "block";
+      modalContent.innerHTML = `<p>총 점수: ${score} / ${questions.length}</p>` + wrongDetails;
+      modalOverlay.style.display = "flex";
     });
-
-    popupClose.addEventListener("click", () => popup.style.display = "none");
-    popupCloseBottom.addEventListener("click", () => popup.style.display = "none");
-
+    
+    // 모달 닫기 이벤트
+    closeModalBtn.addEventListener("click", function() {
+      modalOverlay.style.display = "none";
+    });
+    modalCloseX.addEventListener("click", function() {
+      modalOverlay.style.display = "none";
+    });
+    
+    // 초기 회차 선택 버튼 생성
     createSessionButtons();
   </script>
 </body>
