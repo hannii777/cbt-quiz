@@ -208,6 +208,18 @@
       cursor: pointer;
       margin-top: 20px;
     }
+    /* 회차 선택으로 돌아가기 버튼 */
+    #go-back-btn {
+      padding: 8px 16px;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      display: block;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -251,6 +263,7 @@
       </h2>
       <div id="modal-content"></div>
       <button id="close-modal">닫기</button>
+      <button id="go-back-btn">회차 선택으로 돌아가기</button>
     </div>
   </div>
   
@@ -275,6 +288,7 @@
     const modalContent = document.getElementById("modal-content");
     const closeModalBtn = document.getElementById("close-modal");
     const modalCloseX = document.getElementById("modal-close");
+    const goBackBtn = document.getElementById("go-back-btn");
 
     // 회차 선택 버튼 생성 (예: 20회부터 36회까지)
     function createSessionButtons() {
@@ -432,6 +446,17 @@
     });
     modalCloseX.addEventListener("click", function() {
       modalOverlay.style.display = "none";
+    });
+    
+    // "회차 선택으로 돌아가기" 버튼 클릭 시 초기 화면으로 복귀
+    goBackBtn.addEventListener("click", function() {
+      modalOverlay.style.display = "none";
+      quizContainer.style.display = "none";
+      rightPanel.style.display = "none";
+      sessionContainer.style.display = "block";
+      // 문제, 답안 배열 초기화 (필요시)
+      questions = [];
+      userAnswers = [];
     });
     
     // 초기 회차 선택 버튼 생성
