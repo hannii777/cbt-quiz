@@ -92,39 +92,54 @@
       margin-bottom: 10px;
       color: #007bff;
     }
-    /* 문제 텍스트에 행 들여쓰기 적용 (hanging indent) */
+
+    /* 문제 텍스트에 행 들여쓰기 + 한글 줄바꿈 스타일 */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
-      padding-left: 50px; /* 문제번호 영역 너비 */
-      text-indent: -50px; /* 첫 줄 번호 위치 만큼 음수 들여쓰기 */
+      /* 행 들여쓰기 */
+      padding-left: 50px;
+      text-indent: -50px;
+      /* 줄 간격 및 줄바꿈 설정 */
+      line-height: 1.5;
+      word-break: keep-all;       /* 한글이 중간에 끊기는 현상 최소화 */
+      overflow-wrap: break-word;  /* 줄이 너무 길면 부드럽게 줄바꿈 */
     }
+
     .details {
       margin-top: 20px;
     }
     .details p {
       margin: 6px 0;
     }
+
     /* 선택지 영역 */
     .options {
       margin-bottom: 20px;
       max-width: 600px;
       text-align: left;
     }
-    /* 선택지 버튼에 행 들여쓰기 적용 */
+    /* 선택지 버튼에 행 들여쓰기 + 한글 줄바꿈 */
     .option-btn {
       display: block;
       width: 100%;
       text-align: left;
-      padding: 12px;
       margin-bottom: 10px;
       border: 1px solid #ddd;
       border-radius: 5px;
       background: #fafafa;
       cursor: pointer;
       transition: background 0.2s;
-      padding-left: 40px;  /* 선택지 번호 영역 너비 */
-      text-indent: -40px;  /* 첫 줄 번호 위치 만큼 음수 들여쓰기 */
+      /* 행 들여쓰기 */
+      padding-left: 40px;
+      text-indent: -40px;
+      /* 줄바꿈 관련 */
+      line-height: 1.4;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      padding-top: 12px;
+      padding-bottom: 12px;
+      padding-right: 12px; /* 기존 padding 유지 */
     }
     .option-btn:hover {
       background: #f0f0f0;
@@ -133,6 +148,7 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
+
     /* 피드백 영역 (연습모드용) */
     #feedback {
       margin-top: 10px;
@@ -155,6 +171,7 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
+
     /* 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점 버튼) */
     #right-panel {
       position: fixed;
@@ -203,7 +220,8 @@
       font-size: 14px;
       width: 100%;
     }
-    /* 모달창 스타일 (실전모드 채점 결과) */
+
+    /* 모달창 스타일 (실전모드 채점 결과용) */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -291,8 +309,11 @@
     <!-- 과목 헤더 -->
     <div id="subject-header"></div>
     <div id="question-area">
+      <!-- 문제 텍스트 -->
       <p class="question" id="question-text"></p>
+      <!-- 세부 설명 -->
       <div id="details" class="details"></div>
+      <!-- 선택지 영역 -->
       <div id="options" class="options"></div>
       <!-- 연습모드용 피드백 영역 -->
       <div id="feedback"></div>
@@ -302,7 +323,7 @@
     <button id="next-btn">다음 문제</button>
   </div>
   
-  <!-- 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점 버튼) -->
+  <!-- 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점하기 버튼) -->
   <div id="right-panel">
     <div id="nav-table"></div>
     <button class="nav-btn" id="submit-btn">채점하기</button>
@@ -424,7 +445,7 @@
           // 회차명 업데이트
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 화면 전환: 세션 선택 숨김, 퀴즈 화면 및 오른쪽 패널 보이기
+          // 화면 전환: 세션 선택 숨기고 퀴즈 화면 및 오른쪽 패널 표시
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
           rightPanel.style.display = "block";
@@ -511,7 +532,7 @@
       nextBtn.disabled = currentQuestionIndex === questions.length - 1;
     }
     
-    // 내비게이션 테이블 업데이트 (정답 여부에 따라 색상 변경)
+    // 오른쪽 패널 네비게이션 업데이트 (정답 여부에 따라 색상 변경)
     function updateNavTable() {
       navTable.innerHTML = "";
       for (let i = 0; i < questions.length; i++) {
