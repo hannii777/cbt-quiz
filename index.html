@@ -356,6 +356,22 @@
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
     
+    // 옵션 문자열을 분할하여 개별 옵션 배열로 만드는 함수
+    function processOptions(options) {
+      let newOptions = [];
+      options.forEach(option => {
+        // 선택지 기호 (①,②,③,④,⑤,...) 기준 분할
+        let splitOptions = option.split(/(?=[①②③④⑤⑥⑦⑧⑨⑩])/);
+        splitOptions.forEach(opt => {
+          let trimmed = opt.trim();
+          if(trimmed !== "") {
+            newOptions.push(trimmed);
+          }
+        });
+      });
+      return newOptions;
+    }
+    
     // 모드 선택 이벤트: 세션 선택 화면에서는 오른쪽 패널 숨김
     practiceModeBtn.addEventListener("click", function() {
       currentMode = "practice";
@@ -370,7 +386,7 @@
       rightPanel.style.display = "none";
     });
     
-    // 세션 선택 화면에서 모드 선택으로 돌아가기 (오른쪽 패널과 내비게이션 초기화)
+    // 세션 선택 화면에서 모드 선택으로 돌아가기: 초기화
     backToModeBtn.addEventListener("click", function() {
       sessionContainer.style.display = "none";
       modeContainer.style.display = "block";
@@ -402,7 +418,7 @@
           // 회차명 업데이트
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 화면 전환: 회차 선택 화면 숨김, 퀴즈 화면과 오른쪽 패널 보이기
+          // 화면 전환: 세션 선택 숨기고, 퀴즈 화면 및 오른쪽 패널 보이기
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
           rightPanel.style.display = "block";
@@ -446,36 +462,35 @@
       }
       optionsDiv.innerHTML = "";
       feedbackDiv.textContent = "";
-      if (q.options && q.options.length > 0) {
-        q.options.forEach((option, idx) => {
-          const btn = document.createElement("button");
-          btn.textContent = option;
-          btn.className = "option-btn";
-          if (userAnswers[index] === idx) {
-            btn.classList.add("selected");
-          }
-          btn.addEventListener("click", function() {
-            if (currentMode === "practice") {
-              // 연습모드: 한 번 선택하면 피드백 제공
-              if (userAnswers[index] !== null) return;
-              userAnswers[index] = idx;
-              if (idx === q.answer - 1) {
-                feedbackDiv.style.color = "#5cb85c";
-                feedbackDiv.textContent = "정답입니다!";
-              } else {
-                feedbackDiv.style.color = "#d9534f";
-                feedbackDiv.textContent = `오답입니다. 정답은: ${q.options[q.answer - 1]}`;
-              }
-              updateNavTable();
+      
+      // 옵션 처리: 만약 한 요소에 여러 선택지가 있다면 분할 처리
+      let processedOptions = processOptions(q.options);
+      processedOptions.forEach((option, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.className = "option-btn";
+        if (userAnswers[index] === idx) {
+          btn.classList.add("selected");
+        }
+        btn.addEventListener("click", function() {
+          if (currentMode === "practice") {
+            if (userAnswers[index] !== null) return;
+            userAnswers[index] = idx;
+            if (idx === q.answer - 1) {
+              feedbackDiv.style.color = "#5cb85c";
+              feedbackDiv.textContent = "정답입니다!";
             } else {
-              // 실전모드: 답안 저장만
-              userAnswers[index] = idx;
-              updateOptions();
+              feedbackDiv.style.color = "#d9534f";
+              feedbackDiv.textContent = `오답입니다. 정답은: ${processedOptions[q.answer - 1]}`;
             }
-          });
-          optionsDiv.appendChild(btn);
+            updateNavTable();
+          } else {
+            userAnswers[index] = idx;
+            updateOptions();
+          }
         });
-      }
+        optionsDiv.appendChild(btn);
+      });
       updateNavigation();
       updateNavTable();
     }
@@ -538,8 +553,9 @@
         } else {
           wrongDetails += `<p><strong>문제 ${q.id}:</strong> ${q.question}</p>`;
           if (q.options && q.options.length > 0) {
-            wrongDetails += `<p>내가 선택한 답: ${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : "미선택"}</p>`;
-            wrongDetails += `<p>정답: ${q.options[q.answer - 1]}</p>`;
+            let processedOptions = processOptions(q.options);
+            wrongDetails += `<p>내가 선택한 답: ${userAnswers[idx] !== null ? processedOptions[userAnswers[idx]] : "미응답"}</p>`;
+            wrongDetails += `<p>정답: ${processedOptions[q.answer - 1]}</p>`;
           }
           wrongDetails += `<hr>`;
         }
