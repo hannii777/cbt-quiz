@@ -172,7 +172,8 @@
     }
     .nav-btn {
       padding: 4px 6px;
-      background: #007bff;
+      /* 기본 색상은 중립색; 이후 updateNavTable에서 답안 상태에 따라 업데이트됨 */
+      background: #f0f0f0;
       color: #fff;
       border: none;
       border-radius: 3px;
@@ -185,8 +186,7 @@
       cursor: not-allowed;
     }
     .nav-btn.current {
-      background: #f0a500;
-      font-weight: bold;
+      border: 2px solid #333;
     }
     #submit-btn {
       padding: 8px 12px;
@@ -452,6 +452,7 @@
           }
           btn.addEventListener("click", function() {
             if (currentMode === "practice") {
+              // 연습모드: 한 번 선택하면 즉시 피드백 제공
               if (userAnswers[index] !== null) return;
               userAnswers[index] = idx;
               if (idx === q.answer - 1) {
@@ -463,6 +464,7 @@
               }
               updateNavTable();
             } else {
+              // 실전모드: 답안 저장만 (즉시 피드백 없음)
               userAnswers[index] = idx;
               updateOptions();
             }
@@ -484,15 +486,24 @@
       nextBtn.disabled = currentQuestionIndex === questions.length - 1;
     }
     
-    // 내비게이션 테이블 업데이트
+    // 내비게이션 테이블 업데이트 (수정됨: 정답 여부에 따라 색상 변경)
     function updateNavTable() {
       navTable.innerHTML = "";
       for (let i = 0; i < questions.length; i++) {
         const btn = document.createElement("button");
         btn.textContent = i + 1;
         btn.className = "nav-btn";
-        if (userAnswers[i] === null) {
-          btn.style.background = "#ffcccc";
+        if (userAnswers[i] !== null) {
+          if (userAnswers[i] === questions[i].answer - 1) {
+            // 정답이면 파란색
+            btn.style.background = "#007bff";
+          } else {
+            // 오답이면 빨간색
+            btn.style.background = "#d9534f";
+          }
+        } else {
+          // 미응답: 중립색
+          btn.style.background = "#f0f0f0";
         }
         if (i === currentQuestionIndex) {
           btn.classList.add("current");
