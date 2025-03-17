@@ -7,25 +7,25 @@
   <!-- 구글 폰트 (Roboto) 추가 -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
   <style>
-    /* ============ 기본 스타일 ============ */
+    /* 기본 스타일 */
     body {
       font-family: 'Roboto', sans-serif;
-      background: #f8f9fa; /* 밝은 배경색 */
+      background: #f8f9fa;
       margin: 0;
       padding: 0;
-      color: #212529; /* 다크 그레이 */
-      line-height: 1.5; 
+      color: #212529;
+      line-height: 1.5;
     }
-    /* 상단 헤더 (클릭 시 초기 화면으로 돌아감) */
+    /* 상단 헤더 */
     #main-header {
       text-align: center;
       padding: 20px 0;
       font-size: 26px;
       font-weight: 700;
       cursor: pointer;
-      color: #0d6efd; /* 메인 컬러 */
+      color: #0d6efd;
     }
-    /* 모드 선택 컨테이너 */
+    /* 모드 선택 */
     #mode-container {
       max-width: 800px;
       margin: 20px auto;
@@ -34,25 +34,24 @@
     #mode-container button {
       margin: 5px;
       padding: 10px 15px;
-      background: #0d6efd;  /* 메인 컬러 */
+      background: #0d6efd;
       color: #fff;
       border: none;
-      border-radius: 6px; /* 둥근 모서리 */
+      border-radius: 6px;
       cursor: pointer;
       font-size: 16px;
       transition: background 0.2s, box-shadow 0.2s;
     }
     #mode-container button:hover {
-      background: #0b5ed7; /* 호버 시 약간 어둡게 */
+      background: #0b5ed7;
     }
-    /* 회차 선택 컨테이너 */
+    /* 회차 선택 */
     #session-container {
       max-width: 800px;
       margin: 20px auto;
       text-align: center;
       display: none;
     }
-    /* "모드 선택" 돌아가는 버튼 */
     #back-to-mode-btn {
       margin-bottom: 10px;
       padding: 8px 12px;
@@ -92,7 +91,7 @@
       display: none;
       overflow-y: auto;
     }
-    /* 회차명 표시 (퀴즈 화면 상단) */
+    /* 회차명 및 과목 헤더 */
     #session-name {
       font-size: 20px;
       font-weight: 500;
@@ -100,19 +99,18 @@
       text-align: center;
       color: #0d6efd;
     }
-    /* 과목 헤더 (문제 상단) */
     #subject-header {
       font-size: 18px;
       font-weight: 500;
       margin-bottom: 10px;
       color: #0d6efd;
     }
-    /* 문제 텍스트에 행 들여쓰기 + 한글 줄바꿈 */
+    /* 문제 텍스트 (행 들여쓰기 적용) */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
-      padding-left: 50px;   /* 문제번호 영역 너비 */
-      text-indent: -50px;  /* 첫 줄 번호 위치 만큼 음수 들여쓰기 */
+      padding-left: 1em; 
+      text-indent: -1em;
       word-break: keep-all;
       overflow-wrap: break-word;
     }
@@ -122,13 +120,12 @@
     .details p {
       margin: 6px 0;
     }
-    /* 선택지 영역 */
+    /* 선택지 영역 및 버튼 (행 들여쓰기 적용) */
     .options {
       margin-bottom: 20px;
       max-width: 600px;
       text-align: left;
     }
-    /* 선택지 버튼에 행 들여쓰기 + 한글 줄바꿈 */
     .option-btn {
       display: block;
       width: 100%;
@@ -139,10 +136,8 @@
       background: #fafafa;
       cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s;
-      /* 행 들여쓰기 */
-      padding-left: 40px;
-      text-indent: -40px;
-      /* 줄바꿈 관련 */
+      padding-left: 2em;  /* 2글자 들여쓰기 */
+      text-indent: -2em;
       line-height: 1.4;
       word-break: keep-all;
       overflow-wrap: break-word;
@@ -157,7 +152,7 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
-    /* 피드백 영역 (연습모드용) */
+    /* 피드백 영역 */
     #feedback {
       margin-top: 10px;
       font-weight: bold;
@@ -184,7 +179,7 @@
     #next-btn:hover:not(:disabled) {
       background: #0b5ed7;
     }
-    /* 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점 버튼) */
+    /* 오른쪽 고정 패널 */
     #right-panel {
       position: fixed;
       top: 20px;
@@ -207,7 +202,7 @@
     }
     .nav-btn {
       padding: 4px 6px;
-      background: #f0f0f0; /* 미응답 기본색 */
+      background: #f0f0f0;
       color: #fff;
       border: none;
       border-radius: 3px;
@@ -237,7 +232,7 @@
     #submit-btn:hover {
       background: #0b5ed7;
     }
-    /* 모달창 스타일 (실전모드 채점 결과용) */
+    /* 모달창 스타일 */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -268,7 +263,7 @@
       padding-right: 30px;
       font-size: 1.25rem;
     }
-    /* 닫기 버튼 (X) */
+    /* 닫기 버튼 */
     #modal .close-x {
       position: absolute;
       top: 0;
@@ -298,25 +293,25 @@
     #modal button:hover {
       background: #0b5ed7;
     }
-    /* 회차 선택으로 돌아가기 버튼 (초기 화면) */
+    /* "처음화면" 버튼 */
     #go-back-btn {
       background: #28a745;
     }
     #go-back-btn:hover {
       background: #218838;
     }
-
-    /* 반응형 예시 */
+    
+    /* 반응형 디자인 예시 */
     @media (max-width: 768px) {
       .question {
         font-size: 1.1em;
-        padding-left: 40px;
-        text-indent: -40px;
+        padding-left: 0.8em;
+        text-indent: -0.8em;
       }
       .option-btn {
         font-size: 1em;
-        padding-left: 36px;
-        text-indent: -36px;
+        padding-left: 1.6em;
+        text-indent: -1.6em;
       }
       #prev-btn, #next-btn {
         padding: 8px 12px;
@@ -328,7 +323,7 @@
   </style>
 </head>
 <body>
-  <!-- 상단 헤더 (클릭 시 초기 화면으로 돌아감) -->
+  <!-- 상단 헤더 -->
   <div id="main-header">정수시설운영관리사 CBT</div>
   
   <!-- 모드 선택 컨테이너 -->
@@ -340,7 +335,6 @@
   
   <!-- 회차 선택 컨테이너 -->
   <div id="session-container">
-    <!-- 모드 선택으로 돌아가는 버튼 -->
     <button id="back-to-mode-btn">모드 선택</button>
     <p>풀고 싶은 회차를 선택하세요.</p>
     <div id="session-selection"></div>
@@ -348,39 +342,31 @@
   
   <!-- CBT 퀴즈 컨테이너 -->
   <div id="quiz-container">
-    <!-- 회차명 표시 영역 -->
     <div id="session-name"></div>
-    <!-- 과목 헤더 -->
     <div id="subject-header"></div>
     <div id="question-area">
-      <!-- 문제 텍스트 -->
       <p class="question" id="question-text"></p>
-      <!-- 세부 설명 -->
       <div id="details" class="details"></div>
-      <!-- 선택지 영역 -->
       <div id="options" class="options"></div>
-      <!-- 연습모드용 피드백 영역 -->
       <div id="feedback"></div>
     </div>
-    <!-- 이전/다음 버튼 -->
     <button id="prev-btn">이전 문제</button>
     <button id="next-btn">다음 문제</button>
   </div>
   
-  <!-- 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점하기 버튼) -->
+  <!-- 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점 버튼) -->
   <div id="right-panel">
     <div id="nav-table"></div>
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
-  <!-- 채점 결과 모달 (실전모드) -->
+  <!-- 채점 결과 모달 -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
         채점 결과
         <button class="close-x" id="modal-close">&times;</button>
       </h2>
-      <!-- 채점 결과 상단에 회차명 추가 -->
       <div id="modal-session-name" style="font-weight:500; margin-bottom:10px; color:#0d6efd;"></div>
       <div id="modal-content"></div>
       <div class="modal-buttons">
@@ -431,7 +417,7 @@
     function processOptions(options) {
       let newOptions = [];
       options.forEach(option => {
-        // 선택지 기호 (①,②,③,④,⑤,...) 기준 분할
+        // 선택지 기호 기준 분할 (①,②,③,④,⑤,⑥,⑦,⑧,⑨,⑩)
         let splitOptions = option.split(/(?=[①②③④⑤⑥⑦⑧⑨⑩])/);
         splitOptions.forEach(opt => {
           let trimmed = opt.trim();
@@ -489,7 +475,7 @@
           // 회차명 업데이트
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 화면 전환: 세션 선택 숨기고, 퀴즈 화면 및 오른쪽 패널 보이기
+          // 화면 전환: 세션 선택 숨김, 퀴즈 화면 및 오른쪽 패널 보이기
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
           rightPanel.style.display = "block";
@@ -534,7 +520,7 @@
       optionsDiv.innerHTML = "";
       feedbackDiv.textContent = "";
       
-      // 옵션 처리: 만약 한 요소에 여러 선택지가 있다면 분할 처리
+      // 옵션 처리: 한 요소에 여러 선택지가 있다면 분할 처리
       let processedOptions = processOptions(q.options);
       processedOptions.forEach((option, idx) => {
         const btn = document.createElement("button");
