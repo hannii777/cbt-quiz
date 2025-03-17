@@ -45,6 +45,16 @@
       text-align: center;
       display: none;
     }
+    /* "모드 선택" 돌아가기 버튼 */
+    #back-to-mode-btn {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
     #session-selection button {
       margin: 5px;
       padding: 10px 15px;
@@ -121,7 +131,6 @@
     #feedback {
       margin-top: 10px;
       font-weight: bold;
-      color: #d9534f; /* 오답은 빨간색, 정답일 때 자바스크립트에서 색상 변경 가능 */
     }
     /* 이전/다음 버튼 */
     #prev-btn, #next-btn {
@@ -140,7 +149,7 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    /* 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점하기 버튼) */
+    /* 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점 버튼) */
     #right-panel {
       position: fixed;
       top: 20px;
@@ -245,7 +254,7 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    /* 회차 선택으로 돌아가기 버튼 (처음화면) */
+    /* 회차 선택으로 돌아가기 버튼 (초기 화면) */
     #go-back-btn {
       background: #28a745;
     }
@@ -264,6 +273,8 @@
   
   <!-- 회차 선택 컨테이너 -->
   <div id="session-container">
+    <!-- 모드 선택으로 돌아가는 버튼 -->
+    <button id="back-to-mode-btn">모드 선택</button>
     <p>풀고 싶은 회차를 선택하세요.</p>
     <div id="session-selection"></div>
   </div>
@@ -286,7 +297,7 @@
     <button id="next-btn">다음 문제</button>
   </div>
   
-  <!-- 오른쪽 고정 패널 (실전모드 채점용) -->
+  <!-- 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점 버튼) -->
   <div id="right-panel">
     <div id="nav-table"></div>
     <button class="nav-btn" id="submit-btn">채점하기</button>
@@ -322,6 +333,7 @@
     
     const sessionContainer = document.getElementById("session-container");
     const sessionSelection = document.getElementById("session-selection");
+    const backToModeBtn = document.getElementById("back-to-mode-btn");
     
     const quizContainer = document.getElementById("quiz-container");
     const sessionNameDiv = document.getElementById("session-name");
@@ -345,18 +357,24 @@
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
     
-    // 모드 선택 이벤트
+    // 모드 선택 이벤트 (연습모드/실전모드 모두 오른쪽 패널 표시)
     practiceModeBtn.addEventListener("click", function() {
       currentMode = "practice";
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
+      rightPanel.style.display = "block";
     });
     examModeBtn.addEventListener("click", function() {
       currentMode = "exam";
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
-      // 실전모드에서는 오른쪽 패널(문제 네비게이션 및 채점 버튼)을 보임
       rightPanel.style.display = "block";
+    });
+    
+    // 세션 선택 화면에서 모드 선택으로 돌아가기
+    backToModeBtn.addEventListener("click", function() {
+      sessionContainer.style.display = "none";
+      modeContainer.style.display = "block";
     });
     
     // 회차 선택 버튼 생성 (예: 20회부터 36회까지)
@@ -383,10 +401,9 @@
           // main-header와 퀴즈 화면에 회차명 표시
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 회차 선택 화면 숨기고 퀴즈 화면 표시
+          // 회차 선택 화면 숨기고 퀴즈 화면 표시 (오른쪽 패널은 이미 보임)
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
-          // 초기 문제 표시 및 내비게이션 생성
           showQuestion(0);
           updateNavTable();
         })
@@ -435,19 +452,17 @@
           }
           btn.addEventListener("click", function() {
             if (currentMode === "practice") {
-              // 연습모드: 한 번 선택하면 즉시 피드백 제공
-              if (userAnswers[index] !== null) return; // 이미 답변한 경우 무시
+              if (userAnswers[index] !== null) return;
               userAnswers[index] = idx;
               if (idx === q.answer - 1) {
-                feedbackDiv.style.color = "#5cb85c"; // 정답: 초록색
+                feedbackDiv.style.color = "#5cb85c";
                 feedbackDiv.textContent = "정답입니다!";
               } else {
-                feedbackDiv.style.color = "#d9534f"; // 오답: 빨간색
+                feedbackDiv.style.color = "#d9534f";
                 feedbackDiv.textContent = `오답입니다. 정답은: ${q.options[q.answer - 1]}`;
               }
               updateNavTable();
             } else {
-              // 실전모드: 답안 저장만 (즉시 피드백 없음)
               userAnswers[index] = idx;
               updateOptions();
             }
@@ -538,7 +553,6 @@
       sessionContainer.style.display = "block";
       mainHeader.textContent = "정수시설운영관리사 CBT";
       sessionNameDiv.textContent = "";
-      // 초기화
       questions = [];
       userAnswers = [];
       currentSession = "";
