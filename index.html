@@ -92,9 +92,12 @@
       margin-bottom: 10px;
       color: #007bff;
     }
+    /* 문제 텍스트에 행 들여쓰기 적용 (hanging indent) */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
+      padding-left: 50px; /* 문제번호 영역 너비 */
+      text-indent: -50px; /* 첫 줄 번호 위치 만큼 음수 들여쓰기 */
     }
     .details {
       margin-top: 20px;
@@ -108,6 +111,7 @@
       max-width: 600px;
       text-align: left;
     }
+    /* 선택지 버튼에 행 들여쓰기 적용 */
     .option-btn {
       display: block;
       width: 100%;
@@ -119,6 +123,8 @@
       background: #fafafa;
       cursor: pointer;
       transition: background 0.2s;
+      padding-left: 40px;  /* 선택지 번호 영역 너비 */
+      text-indent: -40px;  /* 첫 줄 번호 위치 만큼 음수 들여쓰기 */
     }
     .option-btn:hover {
       background: #f0f0f0;
@@ -386,7 +392,7 @@
       rightPanel.style.display = "none";
     });
     
-    // 세션 선택 화면에서 모드 선택으로 돌아가기: 초기화
+    // 세션 선택 화면에서 모드 선택으로 돌아가기 (오른쪽 패널 및 내비게이션 초기화)
     backToModeBtn.addEventListener("click", function() {
       sessionContainer.style.display = "none";
       modeContainer.style.display = "block";
@@ -418,7 +424,7 @@
           // 회차명 업데이트
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 화면 전환: 세션 선택 숨기고, 퀴즈 화면 및 오른쪽 패널 보이기
+          // 화면 전환: 세션 선택 숨김, 퀴즈 화면 및 오른쪽 패널 보이기
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
           rightPanel.style.display = "block";
