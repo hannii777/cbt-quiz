@@ -303,9 +303,9 @@
       }
     }
     
-    // 회차 선택 시 GitHub에서 해당 회차 JSON 파일 불러오기
+    // 회차 선택 시 GitHub에서 해당 회차 JSON 파일 불러오기 (URL 인코딩 적용)
     function loadQuestions(session) {
-      const jsonFilePath = `https://haruto7777.github.io/cbt-quiz/${session}회차.json`;
+      const jsonFilePath = encodeURI(`https://haruto7777.github.io/cbt-quiz/${session}회차.json`);
       fetch(jsonFilePath)
         .then(response => response.json())
         .then(data => {
