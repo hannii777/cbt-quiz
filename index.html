@@ -50,14 +50,6 @@
       display: none;
       overflow-y: auto;
     }
-    /* 회차 명 표시 */
-    #session-name {
-      font-size: 20px;
-      font-weight: 500;
-      margin-bottom: 10px;
-      text-align: center;
-      color: #007bff;
-    }
     /* 과목 헤더 (문제 상단에 과목 표시) */
     #subject-header {
       font-size: 18px;
@@ -242,8 +234,6 @@
   
   <!-- CBT 퀴즈 컨테이너 (초기에는 숨김) -->
   <div id="quiz-container">
-    <!-- 추가: 회차 명 표시 -->
-    <div id="session-name"></div>
     <!-- 과목 헤더 (문제 번호에 따라 변경) -->
     <div id="subject-header"></div>
     <div id="question-area">
@@ -285,7 +275,6 @@
     const sessionSelection = document.getElementById("session-selection");
     const sessionContainer = document.getElementById("session-container");
     const quizContainer = document.getElementById("quiz-container");
-    const sessionNameDiv = document.getElementById("session-name");
     const subjectHeader = document.getElementById("subject-header");
     const questionText = document.getElementById("question-text");
     const detailsDiv = document.getElementById("details");
@@ -322,8 +311,8 @@
         .then(data => {
           questions = data;
           userAnswers = new Array(questions.length).fill(null);
-          // 회차명 표시 업데이트
-          sessionNameDiv.textContent = `정수시설운영관리사 ${session}회_2급`;
+          // main-header의 텍스트를 선택한 회차명으로 업데이트 (중앙에 표시)
+          mainHeader.textContent = `정수시설운영관리사 ${session}회_2급`;
           // 회차 선택 영역은 숨기고 퀴즈 인터페이스와 오른쪽 패널 표시
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
@@ -468,6 +457,8 @@
       quizContainer.style.display = "none";
       rightPanel.style.display = "none";
       sessionContainer.style.display = "block";
+      // 회차 선택 화면으로 돌아갈 때 main-header를 원래 텍스트로 복원
+      mainHeader.textContent = "정수시설운영관리사 CBT";
       // 초기화
       questions = [];
       userAnswers = [];
