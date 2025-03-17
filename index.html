@@ -356,18 +356,18 @@
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
     
-    // 모드 선택 이벤트 (연습모드/실전모드 모두 오른쪽 패널 표시)
+    // 모드 선택 이벤트 (연습모드/실전모드 선택 시 오른쪽 패널은 숨기고, 세션 선택 시점에서 새로 보이게 함)
     practiceModeBtn.addEventListener("click", function() {
       currentMode = "practice";
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
-      rightPanel.style.display = "block";
+      rightPanel.style.display = "none";  // 세션 선택 화면에서는 숨김
     });
     examModeBtn.addEventListener("click", function() {
       currentMode = "exam";
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
-      rightPanel.style.display = "block";
+      rightPanel.style.display = "none";  // 세션 선택 화면에서는 숨김
     });
     
     // 세션 선택 화면에서 모드 선택으로 돌아가기 (오른쪽 패널 초기화)
@@ -390,7 +390,7 @@
       }
     }
     
-    // 회차 선택 시 JSON 파일 불러오기 (URL 인코딩 적용)
+    // 회차 선택 시 JSON 파일 불러오기 (URL 인코딩 적용) 및 오른쪽 패널 표시
     function loadQuestions(session) {
       const jsonFilePath = encodeURI(`https://haruto7777.github.io/cbt-quiz/${session}회차.json`);
       fetch(jsonFilePath)
@@ -402,9 +402,10 @@
           // main-header와 퀴즈 화면에 회차명 표시
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 회차 선택 화면 숨기고 퀴즈 화면 표시 (오른쪽 패널은 이미 보임)
+          // 회차 선택 화면 숨기고 퀴즈 화면 및 오른쪽 패널 표시
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
+          rightPanel.style.display = "block";  // 새 회차 선택 시 오른쪽 패널 재표시
           showQuestion(0);
           updateNavTable();
         })
