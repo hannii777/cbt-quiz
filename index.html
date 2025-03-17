@@ -105,7 +105,7 @@
       margin-bottom: 10px;
       color: #0d6efd;
     }
-    /* 문제 텍스트 (행 들여쓰기 적용: 문제 번호는 첫 줄에 보이고 줄바꿈 시 1em 들여쓰기) */
+    /* 문제 텍스트 (행 들여쓰기 적용: 첫 줄은 번호 포함, 이후 줄은 1em 들여쓰기) */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
@@ -114,7 +114,7 @@
       word-break: keep-all;
       overflow-wrap: break-word;
     }
-    /* 문제 영역 하단에 여백 추가해 피드백과 이전/다음 버튼이 겹치지 않도록 */
+    /* 문제 영역 하단 여백 추가 (피드백과 버튼 겹침 방지) */
     #question-area {
       padding-bottom: 80px;
     }
@@ -124,7 +124,7 @@
     .details p {
       margin: 6px 0;
     }
-    /* 선택지 영역 및 버튼 (행 들여쓰기 적용: 줄바꿈 시 2em 들여쓰기) */
+    /* 선택지 영역 및 버튼 (행 들여쓰기 적용: 2em 들여쓰기) */
     .options {
       margin-bottom: 20px;
       max-width: 600px;
@@ -161,10 +161,9 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    /* 이전/다음 버튼 */
+    /* 이전/다음 버튼 (연습모드에서는 버튼 위치를 아래로 이동) */
     #prev-btn, #next-btn {
       position: absolute;
-      bottom: 20px;
       padding: 10px 20px;
       background: #0d6efd;
       color: #fff;
@@ -177,13 +176,10 @@
       background: #ccc;
       cursor: not-allowed;
     }
+    /* 기본 위치: 실전모드에서는 20px, 연습모드에서는 80px (아래쪽) */
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    #prev-btn:hover:not(:disabled),
-    #next-btn:hover:not(:disabled) {
-      background: #0b5ed7;
-    }
-    /* 오른쪽 고정 패널 */
+    /* 오른쪽 패널 내비게이션 버튼 */
     #right-panel {
       position: fixed;
       top: 20px;
@@ -197,7 +193,6 @@
       max-height: 90vh;
       overflow-y: auto;
     }
-    /* 문제 번호 네비게이션 */
     #nav-table {
       display: grid;
       grid-template-columns: repeat(10, auto);
@@ -267,7 +262,6 @@
       padding-right: 30px;
       font-size: 1.25rem;
     }
-    /* 닫기 버튼 */
     #modal .close-x {
       position: absolute;
       top: 0;
@@ -279,7 +273,6 @@
       cursor: pointer;
       color: #333;
     }
-    /* 모달 하단 버튼들 */
     #modal .modal-buttons {
       display: flex;
       justify-content: space-between;
@@ -297,7 +290,6 @@
     #modal button:hover {
       background: #0b5ed7;
     }
-    /* "처음화면" 버튼 */
     #go-back-btn {
       background: #28a745;
     }
@@ -426,7 +418,7 @@
       return newOptions;
     }
     
-    // 모드 선택 이벤트 (연습모드에서는 즉시 피드백, 실전모드에서는 피드백 없이 기록)
+    // 모드 선택 이벤트
     practiceModeBtn.addEventListener("click", function() {
       currentMode = "practice";
       modeContainer.style.display = "none";
@@ -440,7 +432,7 @@
       rightPanel.style.display = "none";
     });
     
-    // 세션 선택에서 모드 선택으로 복귀
+    // 모드 선택 복귀
     backToModeBtn.addEventListener("click", function() {
       sessionContainer.style.display = "none";
       modeContainer.style.display = "block";
@@ -460,7 +452,7 @@
       }
     }
     
-    // 회차 선택 시 JSON 불러오기 및 화면 전환
+    // 회차 선택 및 JSON 불러오기
     function loadQuestions(session) {
       const jsonFilePath = encodeURI(`https://haruto7777.github.io/cbt-quiz/${session}회차.json`);
       fetch(jsonFilePath)
@@ -497,7 +489,7 @@
       subjectHeader.textContent = subject;
     }
     
-    // 문제 표시 함수
+    // 문제 표시
     function showQuestion(index) {
       currentQuestionIndex = index;
       const q = questions[index];
@@ -534,15 +526,23 @@
             }
             updateNavTable();
           } else {
-            // 실전모드: 즉시 피드백 없이 단순히 답안을 기록만 함
+            // 실전모드: 선택 시 하늘색으로 표시 (피드백은 없음)
             userAnswers[index] = idx;
-            updateOptions();
+            updateNavTable();
           }
         });
         optionsDiv.appendChild(btn);
       });
       updateNavigation();
       updateNavTable();
+      // 연습모드일 경우, 이전/다음 버튼을 아래로 이동하여 피드백과 겹치지 않도록 함
+      if (currentMode === "practice") {
+        prevBtn.style.bottom = "80px";
+        nextBtn.style.bottom = "80px";
+      } else {
+        prevBtn.style.bottom = "20px";
+        nextBtn.style.bottom = "20px";
+      }
     }
     
     function updateOptions() {
@@ -555,7 +555,7 @@
       nextBtn.disabled = currentQuestionIndex === questions.length - 1;
     }
     
-    // 내비게이션 업데이트: 연습모드에서는 정답/오답 색상, 실전모드에서는 모두 중립 색상로 표시
+    // 내비게이션 업데이트
     function updateNavTable() {
       navTable.innerHTML = "";
       for (let i = 0; i < questions.length; i++) {
@@ -570,7 +570,8 @@
               btn.style.background = "#d9534f"; // 오답: 빨간색
             }
           } else {
-            btn.style.background = "#cccccc"; // 실전모드: 중립 색상
+            // 실전모드에서는 선택된 경우 모두 하늘색으로 표시
+            btn.style.background = "#add8e6";
           }
         } else {
           btn.style.background = "#f0f0f0"; // 미응답
