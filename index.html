@@ -14,7 +14,7 @@
       padding: 0;
       color: #333;
     }
-    /* 상단 헤더 (클릭 시 회차 선택 화면으로 돌아감) */
+    /* 상단 헤더 (클릭 시 초기 화면으로 돌아감) */
     #main-header {
       text-align: center;
       padding: 20px 0;
@@ -22,11 +22,28 @@
       font-weight: 500;
       cursor: pointer;
     }
+    /* 모드 선택 컨테이너 */
+    #mode-container {
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    #mode-container button {
+      margin: 5px;
+      padding: 10px 15px;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
     /* 회차 선택 컨테이너 */
     #session-container {
       max-width: 800px;
       margin: 20px auto;
       text-align: center;
+      display: none;
     }
     #session-selection button {
       margin: 5px;
@@ -100,6 +117,12 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
+    /* 피드백 영역 (연습모드용) */
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #d9534f; /* 오답은 빨간색, 정답일 때 자바스크립트에서 색상 변경 가능 */
+    }
     /* 이전/다음 버튼 */
     #prev-btn, #next-btn {
       position: absolute;
@@ -117,7 +140,7 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    /* 오른쪽 고정 패널 */
+    /* 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점하기 버튼) */
     #right-panel {
       position: fixed;
       top: 20px;
@@ -166,7 +189,7 @@
       font-size: 14px;
       width: 100%;
     }
-    /* 모달창 스타일 */
+    /* 모달창 스타일 (실전모드 채점 결과용) */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -229,9 +252,14 @@
   </style>
 </head>
 <body>
-  <!-- 상단 헤더 (클릭 시 회차 선택 화면으로 돌아감) -->
-  <div id="main-header">
-    정수시설운영관리사 CBT
+  <!-- 상단 헤더 (클릭 시 초기 화면으로 돌아감) -->
+  <div id="main-header">정수시설운영관리사 CBT</div>
+  
+  <!-- 모드 선택 컨테이너 -->
+  <div id="mode-container">
+    <p>모드를 선택하세요</p>
+    <button id="practice-mode-btn">연습모드</button>
+    <button id="exam-mode-btn">실전모드</button>
   </div>
   
   <!-- 회차 선택 컨테이너 -->
@@ -240,29 +268,31 @@
     <div id="session-selection"></div>
   </div>
   
-  <!-- CBT 퀴즈 컨테이너 (초기에는 숨김) -->
+  <!-- CBT 퀴즈 컨테이너 -->
   <div id="quiz-container">
-    <!-- 회차명 표시 영역 (추가) -->
+    <!-- 회차명 표시 영역 -->
     <div id="session-name"></div>
-    <!-- 과목 헤더 (문제 번호에 따라 변경) -->
+    <!-- 과목 헤더 -->
     <div id="subject-header"></div>
     <div id="question-area">
       <p class="question" id="question-text"></p>
       <div id="details" class="details"></div>
       <div id="options" class="options"></div>
+      <!-- 연습모드용 피드백 영역 -->
+      <div id="feedback"></div>
     </div>
     <!-- 이전/다음 버튼 -->
     <button id="prev-btn">이전 문제</button>
     <button id="next-btn">다음 문제</button>
   </div>
   
-  <!-- 오른쪽 고정 패널: 문제 번호 네비게이션 및 채점하기 버튼 -->
+  <!-- 오른쪽 고정 패널 (실전모드 채점용) -->
   <div id="right-panel">
     <div id="nav-table"></div>
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
-  <!-- 채점 결과 모달창 -->
+  <!-- 채점 결과 모달창 (실전모드) -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
@@ -283,21 +313,30 @@
     let questions = [];
     let currentQuestionIndex = 0;
     let userAnswers = [];
-    let currentSession = ""; // 현재 선택된 회차명 저장
-
-    const sessionSelection = document.getElementById("session-selection");
+    let currentSession = ""; // 선택된 회차명
+    let currentMode = "";    // "practice" 또는 "exam"
+    
+    const modeContainer = document.getElementById("mode-container");
+    const practiceModeBtn = document.getElementById("practice-mode-btn");
+    const examModeBtn = document.getElementById("exam-mode-btn");
+    
     const sessionContainer = document.getElementById("session-container");
+    const sessionSelection = document.getElementById("session-selection");
+    
     const quizContainer = document.getElementById("quiz-container");
     const sessionNameDiv = document.getElementById("session-name");
     const subjectHeader = document.getElementById("subject-header");
     const questionText = document.getElementById("question-text");
     const detailsDiv = document.getElementById("details");
     const optionsDiv = document.getElementById("options");
+    const feedbackDiv = document.getElementById("feedback");
+    
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
     const navTable = document.getElementById("nav-table");
     const rightPanel = document.getElementById("right-panel");
     const submitBtn = document.getElementById("submit-btn");
+    
     const modalOverlay = document.getElementById("modal-overlay");
     const modalContent = document.getElementById("modal-content");
     const modalSessionName = document.getElementById("modal-session-name");
@@ -305,7 +344,21 @@
     const modalCloseX = document.getElementById("modal-close");
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
-
+    
+    // 모드 선택 이벤트
+    practiceModeBtn.addEventListener("click", function() {
+      currentMode = "practice";
+      modeContainer.style.display = "none";
+      sessionContainer.style.display = "block";
+    });
+    examModeBtn.addEventListener("click", function() {
+      currentMode = "exam";
+      modeContainer.style.display = "none";
+      sessionContainer.style.display = "block";
+      // 실전모드에서는 오른쪽 패널(문제 네비게이션 및 채점 버튼)을 보임
+      rightPanel.style.display = "block";
+    });
+    
     // 회차 선택 버튼 생성 (예: 20회부터 36회까지)
     function createSessionButtons() {
       for (let i = 20; i <= 36; i++) {
@@ -318,7 +371,7 @@
       }
     }
     
-    // 회차 선택 시 GitHub에서 해당 회차 JSON 파일 불러오기 (URL 인코딩 적용)
+    // 회차 선택 시 JSON 파일 불러오기 (URL 인코딩 적용)
     function loadQuestions(session) {
       const jsonFilePath = encodeURI(`https://haruto7777.github.io/cbt-quiz/${session}회차.json`);
       fetch(jsonFilePath)
@@ -326,15 +379,13 @@
         .then(data => {
           questions = data;
           userAnswers = new Array(questions.length).fill(null);
-          // 현재 회차명 업데이트
           currentSession = `정수시설운영관리사 ${session}회_2급`;
-          // main-header와 퀴즈 내 회차명 영역에 표시
+          // main-header와 퀴즈 화면에 회차명 표시
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 회차 선택 영역은 숨기고 퀴즈 인터페이스와 오른쪽 패널 표시
+          // 회차 선택 화면 숨기고 퀴즈 화면 표시
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
-          rightPanel.style.display = "block";
           // 초기 문제 표시 및 내비게이션 생성
           showQuestion(0);
           updateNavTable();
@@ -342,7 +393,7 @@
         .catch(error => alert("문제를 불러오는 데 실패했습니다: " + error.message));
     }
     
-    // 과목 헤더 업데이트 (문제 id에 따라 과목 분류)
+    // 과목 헤더 업데이트 (문제 id에 따라)
     function updateSubjectHeader() {
       let subject = "";
       const qid = questions[currentQuestionIndex].id;
@@ -358,15 +409,12 @@
       subjectHeader.textContent = subject;
     }
     
-    // 문제 표시
+    // 문제 표시 (피드백 영역 초기화)
     function showQuestion(index) {
       currentQuestionIndex = index;
       const q = questions[index];
       questionText.textContent = q.question;
-      
       updateSubjectHeader();
-      
-      // 세부 설명(있는 경우) 표시
       detailsDiv.innerHTML = "";
       if (q.details && q.details.length > 0) {
         q.details.forEach(detail => {
@@ -375,9 +423,8 @@
           detailsDiv.appendChild(p);
         });
       }
-      
-      // 선택지 표시
       optionsDiv.innerHTML = "";
+      feedbackDiv.textContent = "";
       if (q.options && q.options.length > 0) {
         q.options.forEach((option, idx) => {
           const btn = document.createElement("button");
@@ -387,13 +434,27 @@
             btn.classList.add("selected");
           }
           btn.addEventListener("click", function() {
-            userAnswers[index] = idx;
-            updateOptions();
+            if (currentMode === "practice") {
+              // 연습모드: 한 번 선택하면 즉시 피드백 제공
+              if (userAnswers[index] !== null) return; // 이미 답변한 경우 무시
+              userAnswers[index] = idx;
+              if (idx === q.answer - 1) {
+                feedbackDiv.style.color = "#5cb85c"; // 정답: 초록색
+                feedbackDiv.textContent = "정답입니다!";
+              } else {
+                feedbackDiv.style.color = "#d9534f"; // 오답: 빨간색
+                feedbackDiv.textContent = `오답입니다. 정답은: ${q.options[q.answer - 1]}`;
+              }
+              updateNavTable();
+            } else {
+              // 실전모드: 답안 저장만 (즉시 피드백 없음)
+              userAnswers[index] = idx;
+              updateOptions();
+            }
           });
           optionsDiv.appendChild(btn);
         });
       }
-      
       updateNavigation();
       updateNavTable();
     }
@@ -402,20 +463,19 @@
       showQuestion(currentQuestionIndex);
     }
     
-    // 이전/다음 버튼 활성/비활성화
+    // 이전/다음 버튼 활성화 업데이트
     function updateNavigation() {
       prevBtn.disabled = currentQuestionIndex === 0;
       nextBtn.disabled = currentQuestionIndex === questions.length - 1;
     }
     
-    // 오른쪽 내비게이션 테이블 업데이트 (문제 번호 네비게이션)
+    // 내비게이션 테이블 업데이트
     function updateNavTable() {
       navTable.innerHTML = "";
       for (let i = 0; i < questions.length; i++) {
         const btn = document.createElement("button");
         btn.textContent = i + 1;
         btn.className = "nav-btn";
-        // 미선택 문제는 연한 빨간색 배경 처리
         if (userAnswers[i] === null) {
           btn.style.background = "#ffcccc";
         }
@@ -441,7 +501,7 @@
       }
     });
     
-    // 채점하기 버튼 클릭 시 모달창으로 상세 채점 결과 표시
+    // 실전모드 채점: 채점 결과 모달 표시
     submitBtn.addEventListener("click", function() {
       let score = 0;
       let wrongDetails = "";
@@ -457,7 +517,6 @@
           wrongDetails += `<hr>`;
         }
       });
-      // 채점 결과 모달에 회차명과 점수 정보를 함께 표시
       modalSessionName.textContent = currentSession;
       modalContent.innerHTML = `<p>총 점수: ${score} / ${questions.length}</p>` + wrongDetails;
       modalOverlay.style.display = "flex";
@@ -471,13 +530,12 @@
       modalOverlay.style.display = "none";
     });
     
-    // "처음화면" 버튼 및 상단 헤더 클릭 시 초기 회차 선택 화면으로 돌아가기
+    // "처음화면" 버튼 및 상단 헤더 클릭 시 초기 화면으로 복원
     function goToSessionSelection() {
       modalOverlay.style.display = "none";
       quizContainer.style.display = "none";
       rightPanel.style.display = "none";
       sessionContainer.style.display = "block";
-      // 회차 선택 화면으로 돌아갈 때 main-header와 session-name을 원래 상태로 복원
       mainHeader.textContent = "정수시설운영관리사 CBT";
       sessionNameDiv.textContent = "";
       // 초기화
