@@ -7,20 +7,23 @@
   <!-- 구글 폰트 (Roboto) 추가 -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
   <style>
+    /* ============ 기본 스타일 ============ */
     body {
       font-family: 'Roboto', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      background: #f8f9fa; /* 밝은 배경색 */
       margin: 0;
       padding: 0;
-      color: #333;
+      color: #212529; /* 다크 그레이 */
+      line-height: 1.5; 
     }
     /* 상단 헤더 (클릭 시 초기 화면으로 돌아감) */
     #main-header {
       text-align: center;
       padding: 20px 0;
       font-size: 26px;
-      font-weight: 500;
+      font-weight: 700;
       cursor: pointer;
+      color: #0d6efd; /* 메인 컬러 */
     }
     /* 모드 선택 컨테이너 */
     #mode-container {
@@ -31,12 +34,16 @@
     #mode-container button {
       margin: 5px;
       padding: 10px 15px;
-      background: #28a745;
+      background: #0d6efd;  /* 메인 컬러 */
       color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px; /* 둥근 모서리 */
       cursor: pointer;
       font-size: 16px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #mode-container button:hover {
+      background: #0b5ed7; /* 호버 시 약간 어둡게 */
     }
     /* 회차 선택 컨테이너 */
     #session-container {
@@ -52,17 +59,25 @@
       background: #6c757d;
       color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: background 0.2s;
+    }
+    #back-to-mode-btn:hover {
+      background: #5b636a;
     }
     #session-selection button {
       margin: 5px;
       padding: 10px 15px;
-      background: #007bff;
+      background: #0d6efd;
       color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #session-selection button:hover {
+      background: #0b5ed7;
     }
     /* CBT 퀴즈 컨테이너 */
     #quiz-container {
@@ -70,7 +85,7 @@
       max-width: 1000px;
       margin: 20px auto;
       background: #fff;
-      padding: 40px 40px 60px 40px;
+      padding: 40px;
       box-sizing: border-box;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -83,36 +98,30 @@
       font-weight: 500;
       margin-bottom: 10px;
       text-align: center;
-      color: #007bff;
+      color: #0d6efd;
     }
     /* 과목 헤더 (문제 상단) */
     #subject-header {
       font-size: 18px;
       font-weight: 500;
       margin-bottom: 10px;
-      color: #007bff;
+      color: #0d6efd;
     }
-
-    /* 문제 텍스트에 행 들여쓰기 + 한글 줄바꿈 스타일 */
+    /* 문제 텍스트에 행 들여쓰기 + 한글 줄바꿈 */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
-      /* 행 들여쓰기 */
-      padding-left: 50px;
-      text-indent: -50px;
-      /* 줄 간격 및 줄바꿈 설정 */
-      line-height: 1.5;
-      word-break: keep-all;       /* 한글이 중간에 끊기는 현상 최소화 */
-      overflow-wrap: break-word;  /* 줄이 너무 길면 부드럽게 줄바꿈 */
+      padding-left: 50px;   /* 문제번호 영역 너비 */
+      text-indent: -50px;  /* 첫 줄 번호 위치 만큼 음수 들여쓰기 */
+      word-break: keep-all;
+      overflow-wrap: break-word;
     }
-
     .details {
       margin-top: 20px;
     }
     .details p {
       margin: 6px 0;
     }
-
     /* 선택지 영역 */
     .options {
       margin-bottom: 20px;
@@ -126,10 +135,10 @@
       text-align: left;
       margin-bottom: 10px;
       border: 1px solid #ddd;
-      border-radius: 5px;
+      border-radius: 6px;
       background: #fafafa;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: background 0.2s, box-shadow 0.2s;
       /* 행 들여쓰기 */
       padding-left: 40px;
       text-indent: -40px;
@@ -139,7 +148,7 @@
       overflow-wrap: break-word;
       padding-top: 12px;
       padding-bottom: 12px;
-      padding-right: 12px; /* 기존 padding 유지 */
+      padding-right: 12px;
     }
     .option-btn:hover {
       background: #f0f0f0;
@@ -148,7 +157,6 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
-
     /* 피드백 영역 (연습모드용) */
     #feedback {
       margin-top: 10px;
@@ -159,11 +167,12 @@
       position: absolute;
       bottom: 20px;
       padding: 10px 20px;
-      background: #007bff;
+      background: #0d6efd;
       color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: background 0.2s;
     }
     #prev-btn:disabled, #next-btn:disabled {
       background: #ccc;
@@ -171,7 +180,10 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-
+    #prev-btn:hover:not(:disabled),
+    #next-btn:hover:not(:disabled) {
+      background: #0b5ed7;
+    }
     /* 오른쪽 고정 패널 (문제 번호 네비게이션 및 채점 버튼) */
     #right-panel {
       position: fixed;
@@ -181,7 +193,7 @@
       background: #fff;
       padding: 10px;
       border: 1px solid #ddd;
-      border-radius: 5px;
+      border-radius: 6px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       max-height: 90vh;
       overflow-y: auto;
@@ -202,6 +214,7 @@
       cursor: pointer;
       min-width: 25px;
       font-size: 12px;
+      transition: background 0.2s;
     }
     .nav-btn:disabled {
       background: #ccc;
@@ -212,15 +225,18 @@
     }
     #submit-btn {
       padding: 8px 12px;
-      background: #007bff;
+      background: #0d6efd;
       color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 14px;
       width: 100%;
+      transition: background 0.2s;
     }
-
+    #submit-btn:hover {
+      background: #0b5ed7;
+    }
     /* 모달창 스타일 (실전모드 채점 결과용) */
     #modal-overlay {
       position: fixed;
@@ -250,6 +266,7 @@
       text-align: left;
       position: relative;
       padding-right: 30px;
+      font-size: 1.25rem;
     }
     /* 닫기 버튼 (X) */
     #modal .close-x {
@@ -271,15 +288,42 @@
     }
     #modal button {
       padding: 8px 16px;
-      background: #007bff;
+      background: #0d6efd;
       color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: background 0.2s;
+    }
+    #modal button:hover {
+      background: #0b5ed7;
     }
     /* 회차 선택으로 돌아가기 버튼 (초기 화면) */
     #go-back-btn {
       background: #28a745;
+    }
+    #go-back-btn:hover {
+      background: #218838;
+    }
+
+    /* 반응형 예시 */
+    @media (max-width: 768px) {
+      .question {
+        font-size: 1.1em;
+        padding-left: 40px;
+        text-indent: -40px;
+      }
+      .option-btn {
+        font-size: 1em;
+        padding-left: 36px;
+        text-indent: -36px;
+      }
+      #prev-btn, #next-btn {
+        padding: 8px 12px;
+      }
+      #quiz-container {
+        padding: 20px;
+      }
     }
   </style>
 </head>
@@ -337,7 +381,7 @@
         <button class="close-x" id="modal-close">&times;</button>
       </h2>
       <!-- 채점 결과 상단에 회차명 추가 -->
-      <div id="modal-session-name" style="font-weight:500; margin-bottom:10px; color:#007bff;"></div>
+      <div id="modal-session-name" style="font-weight:500; margin-bottom:10px; color:#0d6efd;"></div>
       <div id="modal-content"></div>
       <div class="modal-buttons">
         <button id="close-modal">닫기</button>
@@ -445,7 +489,7 @@
           // 회차명 업데이트
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 화면 전환: 세션 선택 숨기고 퀴즈 화면 및 오른쪽 패널 표시
+          // 화면 전환: 세션 선택 숨기고, 퀴즈 화면 및 오른쪽 패널 보이기
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
           rightPanel.style.display = "block";
@@ -504,10 +548,10 @@
             if (userAnswers[index] !== null) return;
             userAnswers[index] = idx;
             if (idx === q.answer - 1) {
-              feedbackDiv.style.color = "#5cb85c";
+              feedbackDiv.style.color = "#5cb85c"; // 초록색
               feedbackDiv.textContent = "정답입니다!";
             } else {
-              feedbackDiv.style.color = "#d9534f";
+              feedbackDiv.style.color = "#d9534f"; // 빨간색
               feedbackDiv.textContent = `오답입니다. 정답은: ${processedOptions[q.answer - 1]}`;
             }
             updateNavTable();
