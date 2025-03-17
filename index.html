@@ -85,7 +85,7 @@
       text-align: center;
       color: #007bff;
     }
-    /* 과목 헤더 (문제 상단에 과목 표시) */
+    /* 과목 헤더 (문제 상단) */
     #subject-header {
       font-size: 18px;
       font-weight: 500;
@@ -197,7 +197,7 @@
       font-size: 14px;
       width: 100%;
     }
-    /* 모달창 스타일 (실전모드 채점 결과용) */
+    /* 모달창 스타일 (실전모드 채점 결과) */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -302,7 +302,7 @@
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
-  <!-- 채점 결과 모달창 (실전모드) -->
+  <!-- 채점 결과 모달 (실전모드) -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
@@ -356,21 +356,21 @@
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
     
-    // 모드 선택 이벤트 (연습모드/실전모드 선택 시 오른쪽 패널은 숨기고, 세션 선택 시점에서 새로 보이게 함)
+    // 모드 선택 이벤트: 세션 선택 화면에서는 오른쪽 패널 숨김
     practiceModeBtn.addEventListener("click", function() {
       currentMode = "practice";
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
-      rightPanel.style.display = "none";  // 세션 선택 화면에서는 숨김
+      rightPanel.style.display = "none";
     });
     examModeBtn.addEventListener("click", function() {
       currentMode = "exam";
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
-      rightPanel.style.display = "none";  // 세션 선택 화면에서는 숨김
+      rightPanel.style.display = "none";
     });
     
-    // 세션 선택 화면에서 모드 선택으로 돌아가기 (오른쪽 패널 초기화)
+    // 세션 선택 화면에서 모드 선택으로 돌아가기 (오른쪽 패널과 내비게이션 초기화)
     backToModeBtn.addEventListener("click", function() {
       sessionContainer.style.display = "none";
       modeContainer.style.display = "block";
@@ -378,7 +378,7 @@
       navTable.innerHTML = "";
     });
     
-    // 회차 선택 버튼 생성 (예: 20회부터 36회까지)
+    // 회차 선택 버튼 생성 (한 번만 생성)
     function createSessionButtons() {
       for (let i = 20; i <= 36; i++) {
         const btn = document.createElement("button");
@@ -390,7 +390,7 @@
       }
     }
     
-    // 회차 선택 시 JSON 파일 불러오기 (URL 인코딩 적용) 및 오른쪽 패널 표시
+    // 회차 선택 시 JSON 파일 불러오기 및 오른쪽 패널 재표시
     function loadQuestions(session) {
       const jsonFilePath = encodeURI(`https://haruto7777.github.io/cbt-quiz/${session}회차.json`);
       fetch(jsonFilePath)
@@ -399,13 +399,15 @@
           questions = data;
           userAnswers = new Array(questions.length).fill(null);
           currentSession = `정수시설운영관리사 ${session}회_2급`;
-          // main-header와 퀴즈 화면에 회차명 표시
+          // 회차명 업데이트
           mainHeader.textContent = currentSession;
           sessionNameDiv.textContent = currentSession;
-          // 회차 선택 화면 숨기고 퀴즈 화면 및 오른쪽 패널 표시
+          // 화면 전환: 회차 선택 화면 숨김, 퀴즈 화면과 오른쪽 패널 보이기
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
-          rightPanel.style.display = "block";  // 새 회차 선택 시 오른쪽 패널 재표시
+          rightPanel.style.display = "block";
+          // 내비게이션 초기화 후 업데이트
+          navTable.innerHTML = "";
           showQuestion(0);
           updateNavTable();
         })
@@ -428,7 +430,7 @@
       subjectHeader.textContent = subject;
     }
     
-    // 문제 표시 (피드백 영역 초기화)
+    // 문제 표시 (피드백 초기화)
     function showQuestion(index) {
       currentQuestionIndex = index;
       const q = questions[index];
@@ -454,7 +456,7 @@
           }
           btn.addEventListener("click", function() {
             if (currentMode === "practice") {
-              // 연습모드: 한 번 선택하면 즉시 피드백 제공
+              // 연습모드: 한 번 선택하면 피드백 제공
               if (userAnswers[index] !== null) return;
               userAnswers[index] = idx;
               if (idx === q.answer - 1) {
@@ -466,7 +468,7 @@
               }
               updateNavTable();
             } else {
-              // 실전모드: 답안 저장만 (즉시 피드백 없음)
+              // 실전모드: 답안 저장만
               userAnswers[index] = idx;
               updateOptions();
             }
@@ -497,15 +499,12 @@
         btn.className = "nav-btn";
         if (userAnswers[i] !== null) {
           if (userAnswers[i] === questions[i].answer - 1) {
-            // 정답이면 파란색
-            btn.style.background = "#007bff";
+            btn.style.background = "#007bff"; // 정답: 파란색
           } else {
-            // 오답이면 빨간색
-            btn.style.background = "#d9534f";
+            btn.style.background = "#d9534f"; // 오답: 빨간색
           }
         } else {
-          // 미응답: 중립색
-          btn.style.background = "#f0f0f0";
+          btn.style.background = "#f0f0f0"; // 미응답
         }
         if (i === currentQuestionIndex) {
           btn.classList.add("current");
@@ -574,7 +573,7 @@
     goBackBtn.addEventListener("click", goToSessionSelection);
     mainHeader.addEventListener("click", goToSessionSelection);
     
-    // 초기 회차 선택 버튼 생성
+    // 초기 회차 선택 버튼 생성 (한 번만 실행)
     createSessionButtons();
   </script>
 </body>
