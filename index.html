@@ -137,10 +137,10 @@
       max-width: 600px;
       margin-bottom: 20px;
     }
-    /* 옵션 버튼 */
+    /* 옵션 버튼 기본 스타일 */
     .option-btn {
       width: 100%;
-      white-space: normal;
+      white-space: normal;  /* 텍스트 자동 줄바꿈 */
       overflow: visible;
       text-align: left;
       border: 1px solid #ddd;
@@ -162,7 +162,7 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
-    /* 옵션 길이 별 배치: 20자 초과면 한 행 전체 사용 */
+    /* 옵션 길이별 클래스: 20자 초과이면 한 행 전체 사용 */
     .short-option {
       /* 기본 2열 유지 */
     }
@@ -422,10 +422,10 @@
     
     // 과목명을 반환하는 함수
     function getSubjectName(qid) {
-      if(qid >= 1 && qid <= 20) return "1과목 수처리공정";
-      if(qid >= 21 && qid <= 40) return "2과목 수질분석 및 관리";
-      if(qid >= 41 && qid <= 60) return "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
-      if(qid >= 61 && qid <= 80) return "4과목 정수시설 수리학";
+      if (qid >= 1 && qid <= 20) return "1과목 수처리공정";
+      if (qid >= 21 && qid <= 40) return "2과목 수질분석 및 관리";
+      if (qid >= 41 && qid <= 60) return "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
+      if (qid >= 61 && qid <= 80) return "4과목 정수시설 수리학";
       return "";
     }
     
@@ -436,7 +436,7 @@
         let splitOptions = option.split(/(?=[①②③④⑤⑥⑦⑧⑨⑩])/);
         splitOptions.forEach(opt => {
           let trimmed = opt.trim();
-          if(trimmed !== "") {
+          if (trimmed !== "") {
             if (/^[①②③④⑤⑥⑦⑧⑨⑩](\S)/.test(trimmed)) {
               trimmed = trimmed[0] + " " + trimmed.slice(1);
             }
@@ -504,10 +504,8 @@
     
     // 과목 헤더 업데이트
     function updateSubjectHeader() {
-      let subject = "";
       const qid = questions[currentQuestionIndex].id;
-      subject = getSubjectName(qid);
-      subjectHeader.textContent = subject;
+      subjectHeader.textContent = getSubjectName(qid);
     }
     
     // 문제 표시
@@ -547,7 +545,7 @@
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
-        // 옵션 길이 기준으로 클래스 추가: 20자 초과이면 전체 행 사용
+        // 옵션 길이가 20자 초과면 긴 옵션 클래스 적용하여 한 행 전체(span 2)를 사용
         if (option.length > 20) {
           btn.classList.add("long-option");
           btn.style.gridColumn = "span 2";
@@ -630,24 +628,25 @@
       }
     }
     
-    // 채점 결과 및 과목별 틀린 문제 그룹화
+    // 채점 후 과목별 틀린 문제와 맞은 문제 그룹화 및 결과 출력
     submitBtn.addEventListener("click", function() {
       let score = 0;
-      // 과목별 틀린 문제를 저장할 객체
-      const wrongBySubject = {
-        "1과목 수처리공정": [],
-        "2과목 수질분석 및 관리": [],
-        "3과목 설비운영(기계ㆍ장치 또는 계측기 등)": [],
-        "4과목 정수시설 수리학": []
-      };
+      const wrongBySubject = {};
+      const correctBySubject = {};
       
       questions.forEach((q, idx) => {
+        const subj = getSubjectName(q.id);
+        if (!(subj in wrongBySubject)) {
+          wrongBySubject[subj] = [];
+        }
+        if (!(subj in correctBySubject)) {
+          correctBySubject[subj] = [];
+        }
         let processedOptions = processOptions(q.options);
         if (userAnswers[idx] !== null && userAnswers[idx] === q.answer - 1) {
           score++;
+          correctBySubject[subj].push({ id: q.id });
         } else {
-          // 틀린 문제의 정보를 객체로 저장
-          const subj = getSubjectName(q.id);
           wrongBySubject[subj].push({
             id: q.id,
             question: q.question,
@@ -657,20 +656,30 @@
         }
       });
       
-      // 채점 결과 HTML 생성
-      let wrongDetails = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>`;
+      let resultHTML = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>`;
+      
+      // 각 과목별 결과 출력
       for (const subject in wrongBySubject) {
+        resultHTML += `<h3>${subject}</h3>`;
         if (wrongBySubject[subject].length > 0) {
-          wrongDetails += `<h3>${subject} - 틀린 문제 (${wrongBySubject[subject].length}개)</h3>`;
+          resultHTML += `<p>틀린 문제 번호: ${wrongBySubject[subject].map(item => item.id).join(", ")}</p>`;
           wrongBySubject[subject].forEach(item => {
-            wrongDetails += `<p><strong>문제 ${item.id}:</strong> ${item.question}</p>`;
-            wrongDetails += `<p>내 선택: ${item.selected}</p>`;
-            wrongDetails += `<p>정답: ${item.correct}</p><hr>`;
+            resultHTML += `<p><strong>문제 ${item.id}:</strong> ${item.question}</p>`;
+            resultHTML += `<p>내 선택: ${item.selected}</p>`;
+            resultHTML += `<p>정답: ${item.correct}</p><hr>`;
           });
+        } else {
+          resultHTML += `<p>틀린 문제 없음</p>`;
+        }
+        if (correctBySubject[subject].length > 0) {
+          resultHTML += `<p>맞은 문제 번호: ${correctBySubject[subject].map(item => item.id).join(", ")}</p>`;
+        } else {
+          resultHTML += `<p>맞은 문제 없음</p>`;
         }
       }
+      
       modalSessionName.textContent = currentSession;
-      modalContent.innerHTML = wrongDetails;
+      modalContent.innerHTML = resultHTML;
       modalOverlay.style.display = "flex";
     });
     
