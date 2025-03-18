@@ -7,10 +7,9 @@
   <!-- 구글 폰트 (Roboto) 추가 -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
   <style>
-    /* 기본 스타일 및 전체 배경 */
+    /* 전체 배경 및 기본 스타일 */
     body {
       font-family: 'Roboto', sans-serif;
-      background: linear-gradient(135deg, #e0eafc, #cfdef3);
       margin: 0;
       padding: 0;
       color: #212529;
@@ -19,8 +18,15 @@
       min-height: 100vh;
       align-items: center;
       justify-content: center;
+      background: linear-gradient(135deg, #e0eafc, #cfdef3);
+      animation: gradientShift 10s ease infinite;
     }
-    /* 상단 헤더 (모든 화면에 공통) */
+    @keyframes gradientShift {
+      0% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
+      50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
+      100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
+    }
+    /* 상단 헤더 */
     #main-header {
       position: absolute;
       top: 20px;
@@ -31,25 +37,25 @@
       cursor: pointer;
       color: #0d6efd;
     }
-    /* 모드 선택 컨테이너 */
+    /* 모드 선택 컨테이너 개선 */
     #mode-container {
-      background: rgba(255,255,255,0.9);
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 30px;
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 15px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      padding: 50px;
       text-align: center;
       max-width: 500px;
       width: 90%;
-      margin-bottom: 20px;
+      margin: 20px;
     }
     #mode-container p {
-      font-size: 1.1em;
+      font-size: 1.2em;
       color: #333;
-      margin-bottom: 20px;
-      line-height: 1.5;
+      margin-bottom: 30px;
+      line-height: 1.6;
     }
     #mode-container button {
-      margin: 8px;
+      margin: 10px;
       padding: 12px 20px;
       background: #0d6efd;
       color: #fff;
@@ -57,43 +63,367 @@
       border-radius: 6px;
       cursor: pointer;
       font-size: 1em;
-      transition: background 0.2s, box-shadow 0.2s;
+      transition: transform 0.2s, background 0.2s;
     }
     #mode-container button:hover {
       background: #0b5ed7;
+      transform: scale(1.05);
     }
-    /* 회차 선택 컨테이너, 퀴즈 컨테이너 등은 기존과 동일 */
-    #session-container, #quiz-container, #right-panel, #modal-overlay {
-      /* 기존 스타일 유지 */
+    /* 애니메이션 아이콘 (예시: 왼쪽 하단, 오른쪽 하단) */
+    .animated-icon {
+      position: fixed;
+      width: 100px;
+      height: 100px;
+      opacity: 0.8;
+      animation: float 5s ease-in-out infinite;
     }
-    /* (기존 코드의 나머지 스타일은 그대로 유지) */
-    
-    /* 기존 mode-container 외의 다른 스타일들은 이전 코드와 동일하게 둡니다. */
-    
+    #left-icon {
+      left: 20px;
+      bottom: 20px;
+      background: url('https://example.com/left-icon.gif') no-repeat center center;
+      background-size: contain;
+    }
+    #right-icon {
+      right: 20px;
+      bottom: 20px;
+      background: url('https://example.com/right-icon.gif') no-repeat center center;
+      background-size: contain;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+    /* 기존 모드 선택 외의 영역은 이전 코드와 동일 */
+    /* 회차 선택 컨테이너 */
+    #session-container {
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: center;
+      display: none;
+    }
+    #back-to-mode-btn {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #back-to-mode-btn:hover {
+      background: #5b636a;
+    }
+    #session-selection button {
+      margin: 5px;
+      padding: 10px 15px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #session-selection button:hover {
+      background: #0b5ed7;
+    }
+    /* CBT 퀴즈 컨테이너 */
+    #quiz-container {
+      position: relative;
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 40px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none;
+      overflow-y: auto;
+    }
+    #session-name {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #0d6efd;
+    }
+    #subject-header {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: #0d6efd;
+    }
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      padding-left: 1em;
+      text-indent: -1em;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    #selected-display {
+      font-size: 1.1em;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    #question-area {
+      padding-bottom: 80px;
+    }
+    .details p {
+      margin-top: 6px;
+      white-space: pre-line;
+    }
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+    .option-btn {
+      width: 100%;
+      white-space: normal;
+      overflow: visible;
+      text-align: left;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      background: #fafafa;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      padding: 10px 12px;
+      padding-left: 2em;
+      text-indent: -2em;
+      line-height: 1.4;
+      font-size: 0.9em;
+      box-sizing: border-box;
+    }
+    .option-btn:hover {
+      background: #f0f0f0;
+    }
+    .option-btn.selected {
+      background: #ffeb99;
+      border-color: #f0a500;
+    }
+    .short-option { }
+    .long-option {
+      grid-column: span 2;
+    }
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #prev-btn, #next-btn {
+      position: absolute;
+      padding: 10px 20px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #prev-btn:disabled, #next-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #prev-btn { left: 40px; }
+    #next-btn { right: 40px; }
+    #right-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: none;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    #nav-table {
+      display: grid;
+      grid-template-columns: repeat(10, auto);
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .nav-btn {
+      padding: 4px 6px;
+      background: #f0f0f0;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      min-width: 25px;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+    .nav-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .nav-btn.current {
+      border: 2px solid #333;
+    }
+    #submit-btn {
+      padding: 8px 12px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    #submit-btn:hover {
+      background: #0b5ed7;
+    }
+    /* 모달창 스타일 */
+    #modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #modal {
+      position: relative;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #modal h2 {
+      margin-top: 0;
+      text-align: left;
+      position: relative;
+      padding-right: 30px;
+      font-size: 1.25rem;
+    }
+    /* ESC 안내 문구를 별도 줄에 표시 */
+    #modal h2 small {
+      display: block;
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 5px;
+    }
+    #modal .close-x {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      color: #333;
+    }
+    #modal .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    #modal button {
+      padding: 8px 16px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #modal button:hover {
+      background: #0b5ed7;
+    }
+    #go-back-btn {
+      background: #28a745;
+    }
+    #go-back-btn:hover {
+      background: #218838;
+    }
+    /* 과목별 요약 표 (모달 오른쪽 상단) */
+    #subject-summary {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      border: 1px solid #ddd;
+      background: #f8f9fa;
+      padding: 5px;
+      font-size: 0.9em;
+      z-index: 1100;
+    }
+    #subject-summary table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    #subject-summary th, #subject-summary td {
+      border: 1px solid #ccc;
+      padding: 2px 5px;
+      text-align: center;
+    }
+    #subject-summary th {
+      background: #e9ecef;
+    }
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      .question {
+        font-size: 1.1em;
+        padding-left: 0.8em;
+        text-indent: -0.8em;
+      }
+      .option-btn {
+        font-size: 0.9em;
+        padding-left: 1.6em;
+        text-indent: -1.6em;
+      }
+      #prev-btn, #next-btn {
+        padding: 8px 12px;
+      }
+      #quiz-container {
+        padding: 20px;
+      }
+      #subject-summary {
+        font-size: 0.8em;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="main-header">정수시설운영관리사 CBT</div>
   
+  <!-- 애니메이션 아이콘 (예시) -->
+  <div id="left-icon" class="animated-icon"></div>
+  <div id="right-icon" class="animated-icon"></div>
+  
   <!-- 모드 선택 화면 -->
   <div id="mode-container">
     <p>
-      정수시설운영관리사 CBT에 오신 것을 환영합니다!<br>
-      아래에서 여러분의 학습 스타일에 맞는 모드를 선택하세요. <br>
-      연습모드에서는 각 문제에 대해 즉각적인 피드백을 받으며 학습할 수 있고, 
-      실전모드에서는 시험 환경과 같이 문제를 풀어 채점 결과로만 실력을 확인할 수 있습니다.
+      정수시설운영관리사 CBT에 오신 것을 진심으로 환영합니다!<br>
+      아래 옵션 중 하나를 선택하여 여러분의 학습 스타일에 맞게 문제를 풀어보세요.<br>
+      연습모드에서는 각 문제에 대해 즉각적인 피드백을 받고, 실전모드에서는 실제 시험 환경처럼 문제를 풀어 실력을 확인할 수 있습니다.
     </p>
     <button id="practice-mode-btn">연습모드 - 피드백 즉시 제공</button>
     <button id="exam-mode-btn">실전모드 - 시험처럼 풀기</button>
   </div>
   
-  <!-- 회차 선택 화면 및 나머지 코드는 기존 코드와 동일 -->
+  <!-- 회차 선택 화면 -->
   <div id="session-container" style="display: none;">
     <button id="back-to-mode-btn">모드 선택</button>
     <p>풀고 싶은 회차를 선택하세요.</p>
     <div id="session-selection"></div>
   </div>
   
+  <!-- CBT 퀴즈 컨테이너 -->
   <div id="quiz-container" style="display: none;">
     <div id="session-name"></div>
     <div id="subject-header"></div>
@@ -113,7 +443,7 @@
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
-  <!-- 채점 결과 모달 (모달창 관련 코드는 이전과 동일) -->
+  <!-- 채점 결과 모달 -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
@@ -132,8 +462,6 @@
   </div>
   
   <script>
-    /* 기존 JavaScript 코드 (세션 선택, 문제 표시, 채점 등)는 이전 코드와 동일하게 유지합니다. */
-    
     let questions = [];
     let currentQuestionIndex = 0;
     let userAnswers = [];
