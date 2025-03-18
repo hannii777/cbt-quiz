@@ -137,11 +137,11 @@
       max-width: 600px;
       margin-bottom: 20px;
     }
-    /* 옵션 버튼 기본 스타일 */
+    /* 옵션 버튼 */
     .option-btn {
       width: 100%;
-      white-space: normal;       /* 텍스트 줄바꿈 허용 */
-      overflow: visible;         /* 전체 내용 보임 */
+      white-space: normal;
+      overflow: visible;
       text-align: left;
       border: 1px solid #ddd;
       border-radius: 6px;
@@ -162,9 +162,9 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
-    /* 단축 옵션와 긴 옵션을 위한 클래스(여기서는 긴 옵션은 grid 전체를 사용) */
+    /* 옵션 길이 별 배치: 20자 초과면 한 행 전체 사용 */
     .short-option {
-      /* 별도의 스타일 변경 없음: grid 기본 1fr */
+      /* 기본 2열 유지 */
     }
     .long-option {
       grid-column: span 2;
@@ -420,6 +420,15 @@
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
     
+    // 과목명을 반환하는 함수
+    function getSubjectName(qid) {
+      if(qid >= 1 && qid <= 20) return "1과목 수처리공정";
+      if(qid >= 21 && qid <= 40) return "2과목 수질분석 및 관리";
+      if(qid >= 41 && qid <= 60) return "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
+      if(qid >= 61 && qid <= 80) return "4과목 정수시설 수리학";
+      return "";
+    }
+    
     // 옵션 문자열 분할 함수: 기호와 내용 사이에 공백이 없으면 추가
     function processOptions(options) {
       let newOptions = [];
@@ -427,7 +436,7 @@
         let splitOptions = option.split(/(?=[①②③④⑤⑥⑦⑧⑨⑩])/);
         splitOptions.forEach(opt => {
           let trimmed = opt.trim();
-          if (trimmed !== "") {
+          if(trimmed !== "") {
             if (/^[①②③④⑤⑥⑦⑧⑨⑩](\S)/.test(trimmed)) {
               trimmed = trimmed[0] + " " + trimmed.slice(1);
             }
@@ -497,15 +506,7 @@
     function updateSubjectHeader() {
       let subject = "";
       const qid = questions[currentQuestionIndex].id;
-      if (qid >= 1 && qid <= 20) {
-        subject = "1과목 수처리공정";
-      } else if (qid >= 21 && qid <= 40) {
-        subject = "2과목 수질분석 및 관리";
-      } else if (qid >= 41 && qid <= 60) {
-        subject = "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
-      } else if (qid >= 61 && qid <= 80) {
-        subject = "4과목 정수시설 수리학";
-      }
+      subject = getSubjectName(qid);
       subjectHeader.textContent = subject;
     }
     
@@ -546,7 +547,7 @@
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
-        // 조건: 옵션 문자열 길이가 20자 이하이면 단축 옵션(2열 그대로), 초과하면 긴 옵션(전체 행 사용)
+        // 옵션 길이 기준으로 클래스 추가: 20자 초과이면 전체 행 사용
         if (option.length > 20) {
           btn.classList.add("long-option");
           btn.style.gridColumn = "span 2";
@@ -629,35 +630,47 @@
       }
     }
     
-    prevBtn.addEventListener("click", function() {
-      if (currentQuestionIndex > 0) {
-        showQuestion(currentQuestionIndex - 1);
-      }
-    });
-    nextBtn.addEventListener("click", function() {
-      if (currentQuestionIndex < questions.length - 1) {
-        showQuestion(currentQuestionIndex + 1);
-      }
-    });
-    
+    // 채점 결과 및 과목별 틀린 문제 그룹화
     submitBtn.addEventListener("click", function() {
       let score = 0;
-      let wrongDetails = "";
+      // 과목별 틀린 문제를 저장할 객체
+      const wrongBySubject = {
+        "1과목 수처리공정": [],
+        "2과목 수질분석 및 관리": [],
+        "3과목 설비운영(기계ㆍ장치 또는 계측기 등)": [],
+        "4과목 정수시설 수리학": []
+      };
+      
       questions.forEach((q, idx) => {
+        let processedOptions = processOptions(q.options);
         if (userAnswers[idx] !== null && userAnswers[idx] === q.answer - 1) {
           score++;
         } else {
-          wrongDetails += `<p><strong>문제 ${q.id}:</strong> ${q.question}</p>`;
-          if (q.options && q.options.length > 0) {
-            let processedOptions = processOptions(q.options);
-            wrongDetails += `<p>내가 선택한 답: ${userAnswers[idx] !== null ? processedOptions[userAnswers[idx]] : "미응답"}</p>`;
-            wrongDetails += `<p>정답: ${processedOptions[q.answer - 1]}</p>`;
-          }
-          wrongDetails += `<hr>`;
+          // 틀린 문제의 정보를 객체로 저장
+          const subj = getSubjectName(q.id);
+          wrongBySubject[subj].push({
+            id: q.id,
+            question: q.question,
+            selected: userAnswers[idx] !== null ? processedOptions[userAnswers[idx]] : "미응답",
+            correct: processedOptions[q.answer - 1]
+          });
         }
       });
+      
+      // 채점 결과 HTML 생성
+      let wrongDetails = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>`;
+      for (const subject in wrongBySubject) {
+        if (wrongBySubject[subject].length > 0) {
+          wrongDetails += `<h3>${subject} - 틀린 문제 (${wrongBySubject[subject].length}개)</h3>`;
+          wrongBySubject[subject].forEach(item => {
+            wrongDetails += `<p><strong>문제 ${item.id}:</strong> ${item.question}</p>`;
+            wrongDetails += `<p>내 선택: ${item.selected}</p>`;
+            wrongDetails += `<p>정답: ${item.correct}</p><hr>`;
+          });
+        }
+      }
       modalSessionName.textContent = currentSession;
-      modalContent.innerHTML = `<p>총 점수: ${score} / ${questions.length}</p>` + wrongDetails;
+      modalContent.innerHTML = wrongDetails;
       modalOverlay.style.display = "flex";
     });
     
