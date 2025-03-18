@@ -105,7 +105,7 @@
       margin-bottom: 10px;
       color: #0d6efd;
     }
-    /* 문제 텍스트 (행 들여쓰기 적용: 첫 줄은 번호 포함, 이후 줄은 1em 들여쓰기) */
+    /* 문제 텍스트: 첫 줄은 번호 포함, 이후 줄은 1em 들여쓰기 */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
@@ -120,17 +120,16 @@
       color: #555;
       margin-bottom: 10px;
     }
-    /* 문제 영역 하단 여백 추가 (피드백과 버튼 겹침 방지) */
+    /* 문제 영역 하단 여백 (피드백과 버튼 겹침 방지) */
     #question-area {
       padding-bottom: 80px;
     }
-    .details {
-      margin-top: 20px;
-    }
+    /* 세부 설명: 줄바꿈 문자를 반영하여 각 줄이 따로 보이도록 */
     .details p {
       margin: 6px 0;
+      white-space: pre-line;
     }
-    /* 선택지 영역 및 버튼 (행 들여쓰기 적용: 2em 들여쓰기) */
+    /* 선택지 영역 및 버튼: 들여쓰기, 간격, 글자 크기 조정 */
     .options {
       margin-bottom: 20px;
       max-width: 600px;
@@ -146,14 +145,13 @@
       background: #fafafa;
       cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s;
+      padding: 15px 12px;
       padding-left: 2em;
       text-indent: -2em;
       line-height: 1.4;
       word-break: keep-all;
       overflow-wrap: break-word;
-      padding-top: 12px;
-      padding-bottom: 12px;
-      padding-right: 12px;
+      font-size: 1.2em;
     }
     .option-btn:hover {
       background: #f0f0f0;
@@ -167,7 +165,7 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    /* 이전/다음 버튼 (연습모드에서는 버튼 위치를 아래로 이동) */
+    /* 이전/다음 버튼 */
     #prev-btn, #next-btn {
       position: absolute;
       padding: 10px 20px;
@@ -182,7 +180,6 @@
       background: #ccc;
       cursor: not-allowed;
     }
-    /* 기본 위치: 실전모드에서는 20px, 연습모드에서는 80px */
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
     /* 오른쪽 고정 패널 */
@@ -348,7 +345,7 @@
     <div id="subject-header"></div>
     <div id="question-area">
       <p class="question" id="question-text"></p>
-      <!-- 선택한 답안 표시 영역 추가 -->
+      <!-- 선택한 답안 표시 영역 -->
       <div id="selected-display"></div>
       <div id="details" class="details"></div>
       <div id="options" class="options"></div>
@@ -416,7 +413,7 @@
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
     
-    // 옵션 문자열 분할 함수
+    // 옵션 문자열 분할 함수: 기호와 내용 사이에 공백이 없으면 추가
     function processOptions(options) {
       let newOptions = [];
       options.forEach(option => {
@@ -424,6 +421,9 @@
         splitOptions.forEach(opt => {
           let trimmed = opt.trim();
           if(trimmed !== "") {
+            if (/^[①②③④⑤⑥⑦⑧⑨⑩](\S)/.test(trimmed)) {
+              trimmed = trimmed[0] + " " + trimmed.slice(1);
+            }
             newOptions.push(trimmed);
           }
         });
@@ -509,6 +509,9 @@
       questionText.textContent = q.question;
       updateSubjectHeader();
       
+      // 이미지 처리: image 필드가 있으면 표시
+      // (필요시 image 처리 코드를 추가)
+      
       // 선택한 답안 표시 업데이트
       let processedOptions = processOptions(q.options);
       if (userAnswers[index] !== null) {
@@ -517,17 +520,18 @@
         selectedDisplay.textContent = "선택한 답: 없음";
       }
       
+      // 세부 설명 처리: 줄바꿈을 <br>로 변환하여 HTML로 표시
       detailsDiv.innerHTML = "";
       if (q.details && q.details.length > 0) {
         q.details.forEach(detail => {
           const p = document.createElement("p");
-          p.textContent = detail;
+          p.innerHTML = detail.replace(/\n/g, "<br>");
           detailsDiv.appendChild(p);
         });
       }
+      
       optionsDiv.innerHTML = "";
       feedbackDiv.textContent = "";
-      
       processedOptions.forEach((option, idx) => {
         const btn = document.createElement("button");
         btn.textContent = option;
@@ -551,15 +555,13 @@
             userAnswers[index] = idx;
             updateNavTable();
           }
-          // 선택한 답안 표시 업데이트
           selectedDisplay.textContent = "선택한 답: " + processedOptions[userAnswers[index]];
         });
         optionsDiv.appendChild(btn);
       });
       updateNavigation();
       updateNavTable();
-      
-      // 연습모드에서는 이전/다음 버튼 위치를 아래로 조정
+      // 연습모드: 이전/다음 버튼 위치를 80px, 실전모드: 20px
       if (currentMode === "practice") {
         prevBtn.style.bottom = "80px";
         nextBtn.style.bottom = "80px";
@@ -579,7 +581,7 @@
       nextBtn.disabled = currentQuestionIndex === questions.length - 1;
     }
     
-    // 내비게이션 업데이트: 연습모드에서는 정답/오답 색상, 실전모드에서는 모두 하늘색(#add8e6)
+    // 내비게이션 업데이트: 연습모드에서는 정답/오답 색상, 실전모드에서는 모두 하늘색
     function updateNavTable() {
       navTable.innerHTML = "";
       for (let i = 0; i < questions.length; i++) {
