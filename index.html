@@ -105,7 +105,7 @@
       margin-bottom: 10px;
       color: #0d6efd;
     }
-    /* 문제 텍스트 (번호 포함 후 들여쓰기) */
+    /* 문제 텍스트 */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
@@ -140,7 +140,7 @@
     /* 옵션 버튼 기본 스타일 */
     .option-btn {
       width: 100%;
-      white-space: normal;  /* 텍스트 자동 줄바꿈 */
+      white-space: normal;
       overflow: visible;
       text-align: left;
       border: 1px solid #ddd;
@@ -162,9 +162,9 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
-    /* 옵션 길이별 클래스: 20자 초과이면 한 행 전체 사용 */
+    /* 옵션 길이별 클래스 */
     .short-option {
-      /* 기본 2열 유지 */
+      /* 2열 유지 */
     }
     .long-option {
       grid-column: span 2;
@@ -310,6 +310,29 @@
     #go-back-btn:hover {
       background: #218838;
     }
+    /* 과목별 요약 표 (모달 오른쪽 상단에 위치) */
+    #subject-summary {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      border: 1px solid #ddd;
+      background: #f8f9fa;
+      padding: 5px;
+      font-size: 0.9em;
+      z-index: 1100;
+    }
+    #subject-summary table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    #subject-summary th, #subject-summary td {
+      border: 1px solid #ccc;
+      padding: 2px 5px;
+      text-align: center;
+    }
+    #subject-summary th {
+      background: #e9ecef;
+    }
     
     /* 반응형 디자인 */
     @media (max-width: 768px) {
@@ -328,6 +351,9 @@
       }
       #quiz-container {
         padding: 20px;
+      }
+      #subject-summary {
+        font-size: 0.8em;
       }
     }
   </style>
@@ -367,12 +393,15 @@
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
+  <!-- 채점 결과 모달 -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
         채점 결과
         <button class="close-x" id="modal-close">&times;</button>
       </h2>
+      <!-- 과목별 요약 표 (오른쪽 상단에 고정) -->
+      <div id="subject-summary"></div>
       <div id="modal-session-name" style="font-weight:500; margin-bottom:10px; color:#0d6efd;"></div>
       <div id="modal-content"></div>
       <div class="modal-buttons">
@@ -419,6 +448,7 @@
     const modalCloseX = document.getElementById("modal-close");
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
+    const subjectSummary = document.getElementById("subject-summary");
     
     // 과목명을 반환하는 함수
     function getSubjectName(qid) {
@@ -429,7 +459,7 @@
       return "";
     }
     
-    // 옵션 문자열 분할 함수: 기호와 내용 사이에 공백이 없으면 추가
+    // 옵션 문자열 분할 함수: 기호와 내용 사이에 공백 추가
     function processOptions(options) {
       let newOptions = [];
       options.forEach(option => {
@@ -523,7 +553,7 @@
         selectedDisplay.textContent = "선택한 답: 없음";
       }
       
-      // 세부 설명 처리: 줄바꿈 문자("\n") 기준으로 각 줄을 개별 <p>로 표시
+      // 세부 설명 처리 (줄바꿈 기준)
       detailsDiv.innerHTML = "";
       if (q.details && q.details.length > 0) {
         q.details.forEach(detail => {
@@ -545,7 +575,7 @@
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
-        // 옵션 길이가 20자 초과면 긴 옵션 클래스 적용하여 한 행 전체(span 2)를 사용
+        // 옵션 길이 기준: 20자 초과이면 한 행 전체 사용
         if (option.length > 20) {
           btn.classList.add("long-option");
           btn.style.gridColumn = "span 2";
@@ -578,7 +608,7 @@
       updateNavigation();
       updateNavTable();
       
-      // 연습모드: 이전/다음 버튼 위치 조정
+      // 연습모드에서 버튼 위치 조정
       if (currentMode === "practice") {
         prevBtn.style.bottom = "80px";
         nextBtn.style.bottom = "80px";
@@ -598,7 +628,7 @@
       nextBtn.disabled = currentQuestionIndex === questions.length - 1;
     }
     
-    // 내비게이션 업데이트: 연습모드에서는 정답/오답 색상, 실전모드에서는 모두 하늘색
+    // 내비게이션 업데이트
     function updateNavTable() {
       navTable.innerHTML = "";
       for (let i = 0; i < questions.length; i++) {
@@ -628,24 +658,28 @@
       }
     }
     
-    // 채점 후 과목별 틀린 문제와 맞은 문제 그룹화 및 결과 출력
+    // 채점 및 과목별 그룹화, 요약 표 생성
     submitBtn.addEventListener("click", function() {
       let score = 0;
-      const wrongBySubject = {};
-      const correctBySubject = {};
+      const wrongBySubject = {
+        "1과목 수처리공정": [],
+        "2과목 수질분석 및 관리": [],
+        "3과목 설비운영(기계ㆍ장치 또는 계측기 등)": [],
+        "4과목 정수시설 수리학": []
+      };
+      const correctBySubject = {
+        "1과목 수처리공정": [],
+        "2과목 수질분석 및 관리": [],
+        "3과목 설비운영(기계ㆍ장치 또는 계측기 등)": [],
+        "4과목 정수시설 수리학": []
+      };
       
       questions.forEach((q, idx) => {
         const subj = getSubjectName(q.id);
-        if (!(subj in wrongBySubject)) {
-          wrongBySubject[subj] = [];
-        }
-        if (!(subj in correctBySubject)) {
-          correctBySubject[subj] = [];
-        }
         let processedOptions = processOptions(q.options);
         if (userAnswers[idx] !== null && userAnswers[idx] === q.answer - 1) {
           score++;
-          correctBySubject[subj].push({ id: q.id });
+          correctBySubject[subj].push(q.id);
         } else {
           wrongBySubject[subj].push({
             id: q.id,
@@ -656,14 +690,29 @@
         }
       });
       
-      let resultHTML = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>`;
+      // 과목별 요약 표 생성 (모달 오른쪽 상단)
+      let summaryHTML = `<table>
+        <tr>
+          <th>과목</th>
+          <th>오답 수</th>
+        </tr>`;
+      const subjects = ["1과목 수처리공정", "2과목 수질분석 및 관리", "3과목 설비운영(기계ㆍ장치 또는 계측기 등)", "4과목 정수시설 수리학"];
+      subjects.forEach(subj => {
+        summaryHTML += `<tr>
+          <td>${subj}</td>
+          <td>${wrongBySubject[subj].length}</td>
+        </tr>`;
+      });
+      summaryHTML += `</table>`;
+      subjectSummary.innerHTML = summaryHTML;
       
-      // 각 과목별 결과 출력
-      for (const subject in wrongBySubject) {
-        resultHTML += `<h3>${subject}</h3>`;
-        if (wrongBySubject[subject].length > 0) {
-          resultHTML += `<p>틀린 문제 번호: ${wrongBySubject[subject].map(item => item.id).join(", ")}</p>`;
-          wrongBySubject[subject].forEach(item => {
+      // 채점 결과 상세 내용 (과목별 틀린 문제 먼저, 그 후 맞은 문제 번호 표시)
+      let resultHTML = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>`;
+      subjects.forEach(subj => {
+        resultHTML += `<h3>${subj}</h3>`;
+        if (wrongBySubject[subj].length > 0) {
+          resultHTML += `<p>틀린 문제 번호: ${wrongBySubject[subj].map(item => item.id).join(", ")}</p>`;
+          wrongBySubject[subj].forEach(item => {
             resultHTML += `<p><strong>문제 ${item.id}:</strong> ${item.question}</p>`;
             resultHTML += `<p>내 선택: ${item.selected}</p>`;
             resultHTML += `<p>정답: ${item.correct}</p><hr>`;
@@ -671,12 +720,12 @@
         } else {
           resultHTML += `<p>틀린 문제 없음</p>`;
         }
-        if (correctBySubject[subject].length > 0) {
-          resultHTML += `<p>맞은 문제 번호: ${correctBySubject[subject].map(item => item.id).join(", ")}</p>`;
+        if (correctBySubject[subj].length > 0) {
+          resultHTML += `<p>맞은 문제 번호: ${correctBySubject[subj].join(", ")}</p>`;
         } else {
           resultHTML += `<p>맞은 문제 없음</p>`;
         }
-      }
+      });
       
       modalSessionName.textContent = currentSession;
       modalContent.innerHTML = resultHTML;
