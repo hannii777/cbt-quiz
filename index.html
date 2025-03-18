@@ -126,7 +126,7 @@
     }
     /* 세부 설명 */
     .details p {
-      margin: 6px 0;
+      margin-top: 6px;
       white-space: pre-line;
     }
     /* 선택지 영역 및 버튼 */
@@ -137,7 +137,9 @@
     }
     .option-btn {
       display: block;
-      width: 100%;
+      width: auto; /* 내용에 맞춰 버튼 길이 자동 확장 */
+      white-space: nowrap; /* 줄바꿈 없이 한 줄로 표시 */
+      overflow-x: auto;  /* 내용이 너무 길면 수평 스크롤 */
       text-align: left;
       margin-bottom: 10px;
       border: 1px solid #ddd;
@@ -149,9 +151,7 @@
       padding-left: 2em;
       text-indent: -2em;
       line-height: 1.4;
-      word-break: keep-all;
-      overflow-wrap: break-word;
-      font-size: 1.2em;
+      font-size: 1.1em; /* 글자 크기를 약간 줄임 */
     }
     .option-btn:hover {
       background: #f0f0f0;
@@ -563,7 +563,7 @@
       updateNavigation();
       updateNavTable();
       
-      // 연습모드에서는 이전/다음 버튼 위치를 아래쪽(80px), 실전모드에서는 기본(20px)
+      // 연습모드에서는 이전/다음 버튼 위치를 80px, 실전모드에서는 20px
       if (currentMode === "practice") {
         prevBtn.style.bottom = "80px";
         nextBtn.style.bottom = "80px";
