@@ -105,7 +105,7 @@
       margin-bottom: 10px;
       color: #0d6efd;
     }
-    /* 문제 텍스트: 첫 줄은 번호 포함, 이후 줄은 1em 들여쓰기 */
+    /* 문제 텍스트 */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
@@ -120,16 +120,16 @@
       color: #555;
       margin-bottom: 10px;
     }
-    /* 문제 영역 하단 여백 (피드백과 버튼 겹침 방지) */
+    /* 문제 영역 하단 여백 */
     #question-area {
       padding-bottom: 80px;
     }
-    /* 세부 설명: 줄바꿈 문자를 반영하여 각 줄이 따로 보이도록 */
+    /* 세부 설명 */
     .details p {
       margin: 6px 0;
       white-space: pre-line;
     }
-    /* 선택지 영역 및 버튼: 들여쓰기, 간격, 글자 크기 조정 */
+    /* 선택지 영역 및 버튼 */
     .options {
       margin-bottom: 20px;
       max-width: 600px;
@@ -266,7 +266,6 @@
       padding-right: 30px;
       font-size: 1.25rem;
     }
-    /* 닫기 버튼 */
     #modal .close-x {
       position: absolute;
       top: 0;
@@ -278,7 +277,6 @@
       cursor: pointer;
       color: #333;
     }
-    /* 모달 하단 버튼들 */
     #modal .modal-buttons {
       display: flex;
       justify-content: space-between;
@@ -509,9 +507,6 @@
       questionText.textContent = q.question;
       updateSubjectHeader();
       
-      // 이미지 처리: image 필드가 있으면 표시
-      // (필요시 image 처리 코드를 추가)
-      
       // 선택한 답안 표시 업데이트
       let processedOptions = processOptions(q.options);
       if (userAnswers[index] !== null) {
@@ -520,13 +515,19 @@
         selectedDisplay.textContent = "선택한 답: 없음";
       }
       
-      // 세부 설명 처리: 줄바꿈을 <br>로 변환하여 HTML로 표시
+      // 세부 설명 처리: 줄바꿈 문자(\n)를 기준으로 각 줄을 개별 <p>로 표시
       detailsDiv.innerHTML = "";
       if (q.details && q.details.length > 0) {
         q.details.forEach(detail => {
-          const p = document.createElement("p");
-          p.innerHTML = detail.replace(/\n/g, "<br>");
-          detailsDiv.appendChild(p);
+          let lines = detail.split("\n");
+          lines.forEach(line => {
+            line = line.trim();
+            if (line) {
+              const p = document.createElement("p");
+              p.textContent = line;
+              detailsDiv.appendChild(p);
+            }
+          });
         });
       }
       
@@ -561,7 +562,8 @@
       });
       updateNavigation();
       updateNavTable();
-      // 연습모드: 이전/다음 버튼 위치를 80px, 실전모드: 20px
+      
+      // 연습모드에서는 이전/다음 버튼 위치를 아래쪽(80px), 실전모드에서는 기본(20px)
       if (currentMode === "practice") {
         prevBtn.style.bottom = "80px";
         nextBtn.style.bottom = "80px";
