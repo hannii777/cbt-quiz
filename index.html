@@ -105,7 +105,7 @@
       margin-bottom: 10px;
       color: #0d6efd;
     }
-    /* 문제 텍스트 (번호 포함 후 들여쓰기) */
+    /* 문제 텍스트 (첫 줄 번호 포함, 이후 들여쓰기) */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
@@ -137,11 +137,11 @@
       max-width: 600px;
       margin-bottom: 20px;
     }
-    /* 옵션 버튼 기본 스타일 */
+    /* 옵션 버튼: 모든 버튼의 크기를 동일하게 고정 */
     .option-btn {
-      white-space: nowrap;       /* 한 줄로 표시 */
-      overflow-x: auto;          /* 넘치는 경우 수평 스크롤 */
-      text-overflow: ellipsis;
+      width: 100%;
+      white-space: normal; /* 텍스트 줄바꿈 허용 */
+      overflow: visible;   /* 텍스트 전체 표시 */
       text-align: left;
       border: 1px solid #ddd;
       border-radius: 6px;
@@ -149,11 +149,12 @@
       cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s;
       padding: 10px 12px;
+      /* 선택지 기호와 내용에 대한 들여쓰기는 그대로 유지 */
       padding-left: 2em;
       text-indent: -2em;
       line-height: 1.4;
       font-size: 0.9em;
-      position: relative;
+      box-sizing: border-box;
     }
     .option-btn:hover {
       background: #f0f0f0;
@@ -161,14 +162,6 @@
     .option-btn.selected {
       background: #ffeb99;
       border-color: #f0a500;
-    }
-    /* 단축 옵션: 글자 길이 20자 이하인 경우 (2열 배치 기본) */
-    .short-option {
-      /* 기본 grid 아이템 그대로 */
-    }
-    /* 긴 옵션: 20자 초과이면 2열 전부를 사용 */
-    .long-option {
-      grid-column: span 2;
     }
     /* 피드백 영역 */
     #feedback {
@@ -428,7 +421,7 @@
         let splitOptions = option.split(/(?=[①②③④⑤⑥⑦⑧⑨⑩])/);
         splitOptions.forEach(opt => {
           let trimmed = opt.trim();
-          if (trimmed !== "") {
+          if(trimmed !== "") {
             if (/^[①②③④⑤⑥⑦⑧⑨⑩](\S)/.test(trimmed)) {
               trimmed = trimmed[0] + " " + trimmed.slice(1);
             }
@@ -547,13 +540,7 @@
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
-        // 만약 공백 포함 글자 수가 20 이하이면 단축 옵션 클래스를, 초과하면 긴 옵션 클래스를 추가
-        if (option.length <= 20) {
-          btn.classList.add("short-option");
-        } else {
-          btn.classList.add("long-option");
-          btn.style.gridColumn = "span 2";
-        }
+        // 여기서는 항상 전체 내용이 보이도록 하므로 별도의 줄바꿈 처리 없이 wrap되게 함
         if (userAnswers[index] === idx) {
           btn.classList.add("selected");
         }
