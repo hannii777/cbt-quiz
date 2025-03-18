@@ -105,7 +105,7 @@
       margin-bottom: 10px;
       color: #0d6efd;
     }
-    /* 문제 텍스트 (첫 줄 번호 포함, 이후 들여쓰기) */
+    /* 문제 텍스트 (번호 포함 후 들여쓰기) */
     .question {
       font-size: 1.2em;
       margin-bottom: 20px;
@@ -137,11 +137,11 @@
       max-width: 600px;
       margin-bottom: 20px;
     }
-    /* 옵션 버튼: 모든 버튼의 크기를 동일하게 고정 */
+    /* 옵션 버튼: 모든 버튼의 크기를 grid 셀에 맞게 고정하고, 텍스트는 줄바꿈되도록 함 */
     .option-btn {
       width: 100%;
-      white-space: normal; /* 텍스트 줄바꿈 허용 */
-      overflow: visible;   /* 텍스트 전체 표시 */
+      white-space: normal;       /* 텍스트 자동 줄바꿈 */
+      overflow: visible;         /* 스크롤바 없이 전체 내용 표시 */
       text-align: left;
       border: 1px solid #ddd;
       border-radius: 6px;
@@ -149,7 +149,6 @@
       cursor: pointer;
       transition: background 0.2s, box-shadow 0.2s;
       padding: 10px 12px;
-      /* 선택지 기호와 내용에 대한 들여쓰기는 그대로 유지 */
       padding-left: 2em;
       text-indent: -2em;
       line-height: 1.4;
@@ -540,7 +539,7 @@
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
-        // 여기서는 항상 전체 내용이 보이도록 하므로 별도의 줄바꿈 처리 없이 wrap되게 함
+        // 모든 옵션은 grid 셀 크기에 맞게 자동 줄바꿈되도록 하며, 칸 길이는 동일하게 유지됩니다.
         if (userAnswers[index] === idx) {
           btn.classList.add("selected");
         }
