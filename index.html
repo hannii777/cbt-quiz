@@ -163,9 +163,7 @@
       border-color: #f0a500;
     }
     /* 옵션 길이별 클래스 */
-    .short-option {
-      /* 기본 2열 유지 */
-    }
+    .short-option { }
     .long-option {
       grid-column: span 2;
     }
@@ -275,11 +273,12 @@
       padding-right: 30px;
       font-size: 1.25rem;
     }
-    /* ESC 안내 문구 추가 */
+    /* ESC 안내 문구를 별도 줄에 표시 */
     #modal h2 small {
+      display: block;
       font-size: 0.8rem;
       color: #888;
-      margin-left: 10px;
+      margin-top: 5px;
     }
     #modal .close-x {
       position: absolute;
@@ -403,7 +402,8 @@
   <div id="modal-overlay">
     <div id="modal">
       <h2>
-        채점 결과 <small>(ESC를 누르시면 창을 종료할 수 있습니다!!)</small>
+        채점 결과
+        <small>(ESC를 누르시면 창을 종료할 수 있습니다!!)</small>
         <button class="close-x" id="modal-close">&times;</button>
       </h2>
       <!-- 과목별 요약 표 (모달 오른쪽 상단) -->
@@ -581,7 +581,7 @@
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
-        // 옵션 길이 기준: 20자 초과이면 한 행 전체 사용
+        // 옵션 길이 기준: 20자 초과이면 전체 행(span 2) 사용
         if (option.length > 20) {
           btn.classList.add("long-option");
           btn.style.gridColumn = "span 2";
@@ -738,7 +738,7 @@
       modalOverlay.style.display = "flex";
     });
     
-    // 닫기 버튼 및 ESC 키 이벤트 처리: 확인 창 후 닫기
+    // 닫기 버튼 및 ESC 키 이벤트 처리: 확인 창 후 모달 닫기
     function closeModalWithConfirm() {
       if (confirm("정말 닫겠습니까?")) {
         modalOverlay.style.display = "none";
