@@ -25,18 +25,123 @@
       cursor: pointer;
       color: #0d6efd;
     }
-    /* 모드 선택, 회차 선택, 기타 스타일은 기존과 동일... */
-    /* ... (생략) ... */
-    
-    /* 선택지 버튼 수정: 한 줄로 표시, 스크롤 대신 툴팁 사용 */
-    .option-btn {
-      display: block;
-      width: auto;
-      white-space: nowrap; /* 한 줄 표시 */
-      overflow: hidden; /* 넘치는 내용 숨김 */
-      text-overflow: ellipsis; /* 말줄임표 표시 */
-      text-align: left;
+    /* 모드 선택 컨테이너 */
+    #mode-container {
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    #mode-container button {
+      margin: 5px;
+      padding: 10px 15px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #mode-container button:hover {
+      background: #0b5ed7;
+    }
+    /* 회차 선택 컨테이너 */
+    #session-container {
+      max-width: 800px;
+      margin: 20px auto;
+      text-align: center;
+      display: none;
+    }
+    #back-to-mode-btn {
       margin-bottom: 10px;
+      padding: 8px 12px;
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #back-to-mode-btn:hover {
+      background: #5b636a;
+    }
+    #session-selection button {
+      margin: 5px;
+      padding: 10px 15px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    #session-selection button:hover {
+      background: #0b5ed7;
+    }
+    /* CBT 퀴즈 컨테이너 */
+    #quiz-container {
+      position: relative;
+      max-width: 1000px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 40px;
+      box-sizing: border-box;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      display: none;
+      overflow-y: auto;
+    }
+    /* 회차명 및 과목 헤더 */
+    #session-name {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #0d6efd;
+    }
+    #subject-header {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      color: #0d6efd;
+    }
+    /* 문제 텍스트 (첫 줄 번호 포함, 이후 들여쓰기) */
+    .question {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      padding-left: 1em;
+      text-indent: -1em;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+    /* 선택한 답안 표시 영역 */
+    #selected-display {
+      font-size: 1.1em;
+      color: #555;
+      margin-bottom: 10px;
+    }
+    /* 문제 영역 하단 여백 */
+    #question-area {
+      padding-bottom: 80px;
+    }
+    /* 세부 설명 */
+    .details p {
+      margin-top: 6px;
+      white-space: pre-line;
+    }
+    /* 선택지 영역: grid 레이아웃 적용하여 2열 배치 */
+    .options {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+    .option-btn {
+      white-space: nowrap;       /* 한 줄로 표시 */
+      overflow-x: auto;          /* 내용이 넘으면 수평 스크롤 */
+      text-overflow: ellipsis;   /* 말줄임표 처리 */
+      text-align: left;
       border: 1px solid #ddd;
       border-radius: 6px;
       background: #fafafa;
@@ -46,8 +151,7 @@
       padding-left: 2em;
       text-indent: -2em;
       line-height: 1.4;
-      font-size: 1em; /* 글자 크기를 줄임 */
-      position: relative;
+      font-size: 0.9em;         /* 글자 크기 더 줄임 */
     }
     .option-btn:hover {
       background: #f0f0f0;
@@ -56,33 +160,170 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
-    
-    /* 툴팁 스타일 */
-    .tooltip {
+    /* 피드백 영역 */
+    #feedback {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    /* 이전/다음 버튼 */
+    #prev-btn, #next-btn {
       position: absolute;
-      top: 110%;
-      left: 0;
-      z-index: 10;
-      background: rgba(0, 0, 0, 0.8);
+      padding: 10px 20px;
+      background: #0d6efd;
       color: #fff;
-      padding: 6px 8px;
-      border-radius: 4px;
-      font-size: 0.9em;
-      white-space: normal;
-      width: max-content;
-      max-width: 300px;
-      display: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .option-btn:hover .tooltip {
-      display: block;
+    #prev-btn:disabled, #next-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #prev-btn { left: 40px; }
+    #next-btn { right: 40px; }
+    /* 오른쪽 고정 패널 */
+    #right-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      display: none;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    /* 문제 번호 네비게이션 */
+    #nav-table {
+      display: grid;
+      grid-template-columns: repeat(10, auto);
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .nav-btn {
+      padding: 4px 6px;
+      background: #f0f0f0;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      min-width: 25px;
+      font-size: 12px;
+      transition: background 0.2s;
+    }
+    .nav-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .nav-btn.current {
+      border: 2px solid #333;
+    }
+    #submit-btn {
+      padding: 8px 12px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      width: 100%;
+      transition: background 0.2s;
+    }
+    #submit-btn:hover {
+      background: #0b5ed7;
+    }
+    /* 모달창 스타일 */
+    #modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #modal {
+      position: relative;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #modal h2 {
+      margin-top: 0;
+      text-align: left;
+      position: relative;
+      padding-right: 30px;
+      font-size: 1.25rem;
+    }
+    #modal .close-x {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      line-height: 1;
+      cursor: pointer;
+      color: #333;
+    }
+    #modal .modal-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    #modal button {
+      padding: 8px 16px;
+      background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #modal button:hover {
+      background: #0b5ed7;
+    }
+    /* "처음화면" 버튼 */
+    #go-back-btn {
+      background: #28a745;
+    }
+    #go-back-btn:hover {
+      background: #218838;
     }
     
-    /* 나머지 CSS는 그대로 유지 */
-    /* ... (이전 코드와 동일) ... */
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      .question {
+        font-size: 1.1em;
+        padding-left: 0.8em;
+        text-indent: -0.8em;
+      }
+      .option-btn {
+        font-size: 0.9em;
+        padding-left: 1.6em;
+        text-indent: -1.6em;
+      }
+      #prev-btn, #next-btn {
+        padding: 8px 12px;
+      }
+      #quiz-container {
+        padding: 20px;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- HTML 구조는 이전과 동일 -->
   <div id="main-header">정수시설운영관리사 CBT</div>
   
   <div id="mode-container">
@@ -102,6 +343,7 @@
     <div id="subject-header"></div>
     <div id="question-area">
       <p class="question" id="question-text"></p>
+      <!-- 선택한 답안 표시 영역 -->
       <div id="selected-display"></div>
       <div id="details" class="details"></div>
       <div id="options" class="options"></div>
@@ -273,7 +515,7 @@
         selectedDisplay.textContent = "선택한 답: 없음";
       }
       
-      // 세부 설명 처리: 줄바꿈 문자(\n)를 기준으로 각 줄을 개별 <p>로 표시
+      // 세부 설명 처리: 줄바꿈 문자("\n") 기준으로 각 줄을 개별 <p>로 표시
       detailsDiv.innerHTML = "";
       if (q.details && q.details.length > 0) {
         q.details.forEach(detail => {
@@ -295,12 +537,6 @@
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.className = "option-btn";
-        // 툴팁 추가: 버튼 내부에 전체 텍스트를 보여주는 span 생성
-        const tooltip = document.createElement("span");
-        tooltip.className = "tooltip";
-        tooltip.textContent = option;
-        btn.appendChild(tooltip);
-        
         if (userAnswers[index] === idx) {
           btn.classList.add("selected");
         }
@@ -327,7 +563,7 @@
       updateNavigation();
       updateNavTable();
       
-      // 연습모드: 이전/다음 버튼 위치 조정
+      // 연습모드에서는 이전/다음 버튼 위치 조정
       if (currentMode === "practice") {
         prevBtn.style.bottom = "80px";
         nextBtn.style.bottom = "80px";
