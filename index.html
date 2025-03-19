@@ -426,7 +426,10 @@
         padding: 8px 12px;
       }
       #quiz-container {
-        padding: 20px;
+        width: 800px;       /* 원하는 고정 너비 설정 */
+        height: 600px;      /* 원하는 고정 높이 설정 */
+        overflow-y: auto;   /* 세로 내용이 넘치면 스크롤바 표시 */
+        overflow-x: hidden; /* 가로 스크롤은 숨김 (필요시 auto로 변경 가능) */
       }
       #subject-summary {
         font-size: 0.8em;
