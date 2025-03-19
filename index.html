@@ -132,16 +132,17 @@
     /* CBT 퀴즈 컨테이너: 고정된 최소 높이 적용 */
     #quiz-container {
       position: relative;
-      max-width: 1000px;
+      width: 800px;       /* 고정 너비 (예: 800px) */
+      height: 600px;
       margin: 20px auto;
       background: #fff;
       padding: 40px;
-      min-height: 600px;
       box-sizing: border-box;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       display: none;
       overflow-y: auto;
+      overflow-x: hidden;
     }
     #session-name {
       font-size: 20px;
