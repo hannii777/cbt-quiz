@@ -26,7 +26,7 @@
       50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
       100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
     }
-    /* 상단 헤더 – 회차 문구가 너무 내려가지 않도록 (150px) */
+    /* 상단 헤더 – 회차 문구가 너무 내려가지 않도록 */
     #main-header {
       position: absolute;
       top: 150px;
@@ -66,7 +66,7 @@
     #mode-container ul li {
       margin-bottom: 10px;
     }
-    /* 모드 선택 버튼 영역 – 화면 왼쪽 상단 고정 */
+    /* 모드 선택 버튼 영역 */
     #mode-buttons {
       display: flex;
       justify-content: space-between;
@@ -88,7 +88,7 @@
       background: #0b5ed7;
       transform: scale(1.05);
     }
-    /* 애니메이션 아이콘 예시 */
+    /* 애니메이션 아이콘 (예시) */
     .animated-icon {
       position: fixed;
       width: 100px;
@@ -119,7 +119,7 @@
       text-align: center;
       display: none;
     }
-    /* 회차 선택 안내 문구 스타일 */
+    /* 회차 선택 안내 문구 스타일 (왼쪽 정렬) */
     #session-instruction {
       font-size: 1.3em;
       font-weight: bold;
@@ -237,7 +237,7 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    /* 이전/다음 버튼: z-index 추가 */
+    /* 이전/다음 버튼 (z-index 추가) */
     #prev-btn, #next-btn {
       position: absolute;
       padding: 10px 20px;
@@ -255,7 +255,7 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    /* “이전화면” 버튼 (퀴즈 화면) – 화면 왼쪽 상단에 고정 */
+    /* “이전화면” 버튼 (퀴즈 화면) – 항상 왼쪽 상단에 고정 */
     #back-screen-btn {
       position: fixed;
       top: 20px;
@@ -270,6 +270,23 @@
       z-index: 1100;
     }
     #back-screen-btn:hover {
+      background: #5b636a;
+    }
+    /* 모드 선택(이전화면) 버튼 (세션 선택 화면) – 왼쪽 상단에 고정 */
+    #back-to-mode-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 8px 12px;
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+      z-index: 1100;
+    }
+    #back-to-mode-btn:hover {
       background: #5b636a;
     }
     /* 오른쪽 고정 패널 */
@@ -477,18 +494,18 @@
   
   <!-- 회차 선택 화면 -->
   <div id="session-container" style="display: none;">
-    <!-- 모드 선택 (이전화면) 버튼: 화면 왼쪽 상단에 고정 -->
+    <!-- 모드 선택(이전화면) 버튼 (수정: 화면 왼쪽 상단에 고정) -->
     <button id="back-to-mode-btn">모드 선택 (이전화면)</button>
     <p id="session-instruction">
       오늘 공부할 회차를 선택해 주세요. 여러분의 열정을 응원합니다!
     </p>
-    <!-- 회차 선택 버튼들을 6개씩 배열 -->
+    <!-- 회차 선택 버튼 영역: 그리드 레이아웃, 한 행에 6개씩 -->
     <div id="session-selection"></div>
   </div>
   
   <!-- CBT 퀴즈 컨테이너 -->
   <div id="quiz-container" style="display: none;">
-    <!-- "이전화면" 버튼 추가 (퀴즈 화면 왼쪽 상단) -->
+    <!-- "이전화면" 버튼 (퀴즈 화면, 왼쪽 상단에 고정) -->
     <button id="back-screen-btn">이전화면</button>
     <div id="session-name"></div>
     <div id="subject-header"></div>
@@ -603,7 +620,6 @@
       navTable.innerHTML = "";
     });
     
-    // "이전화면" 버튼 (퀴즈 화면) – 항상 화면 왼쪽 상단에 고정
     backScreenBtn.addEventListener("click", function() {
       goToSessionSelection();
     });
