@@ -88,30 +88,6 @@
       background: #0b5ed7;
       transform: scale(1.05);
     }
-    /* 애니메이션 아이콘 (예시) */
-    .animated-icon {
-      position: fixed;
-      width: 100px;
-      height: 100px;
-      opacity: 0.8;
-      animation: float 5s ease-in-out infinite;
-    }
-    #left-icon {
-      left: 20px;
-      bottom: 20px;
-      background: url('https://example.com/left-icon.gif') no-repeat center center;
-      background-size: contain;
-    }
-    #right-icon {
-      right: 20px;
-      bottom: 20px;
-      background: url('https://example.com/right-icon.gif') no-repeat center center;
-      background-size: contain;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-15px); }
-    }
     /* 회차 선택 컨테이너 */
     #session-container {
       max-width: 800px;
@@ -119,7 +95,7 @@
       text-align: center;
       display: none;
     }
-    /* 회차 선택 안내 문구 스타일 (왼쪽 정렬) */
+    /* 회차 선택 안내 문구 스타일 */
     #session-instruction {
       font-size: 1.3em;
       font-weight: bold;
@@ -237,7 +213,7 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    /* 이전/다음 버튼 (z-index 추가) */
+    /* 이전/다음 버튼 (디버깅 콘솔 로그 추가 및 z-index 적용) */
     #prev-btn, #next-btn {
       position: absolute;
       padding: 10px 20px;
@@ -255,7 +231,7 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    /* “이전화면” 버튼 (퀴즈 화면) – 항상 왼쪽 상단에 고정 */
+    /* “이전화면” 버튼 (퀴즈 화면) – 화면 왼쪽 상단에 고정 */
     #back-screen-btn {
       position: fixed;
       top: 20px;
@@ -494,7 +470,7 @@
   
   <!-- 회차 선택 화면 -->
   <div id="session-container" style="display: none;">
-    <!-- 모드 선택(이전화면) 버튼 (수정: 화면 왼쪽 상단에 고정) -->
+    <!-- 모드 선택(이전화면) 버튼 (왼쪽 상단 고정) -->
     <button id="back-to-mode-btn">모드 선택 (이전화면)</button>
     <p id="session-instruction">
       오늘 공부할 회차를 선택해 주세요. 여러분의 열정을 응원합니다!
@@ -505,7 +481,7 @@
   
   <!-- CBT 퀴즈 컨테이너 -->
   <div id="quiz-container" style="display: none;">
-    <!-- "이전화면" 버튼 (퀴즈 화면, 왼쪽 상단에 고정) -->
+    <!-- "이전화면" 버튼 (퀴즈 화면, 왼쪽 상단 고정) -->
     <button id="back-screen-btn">이전화면</button>
     <div id="session-name"></div>
     <div id="subject-header"></div>
@@ -672,65 +648,70 @@
     function showQuestion(index) {
       currentQuestionIndex = index;
       const q = questions[index];
-      questionText.textContent = q.question;
-      updateSubjectHeader();
-      
-      let processedOptions = processOptions(q.options);
-      selectedDisplay.textContent = (userAnswers[index] !== null) ?
-          "선택한 답: " + processedOptions[userAnswers[index]] :
-          "선택한 답: 없음";
-      
-      detailsDiv.innerHTML = "";
-      if (q.details && q.details.length > 0) {
-        q.details.forEach(detail => {
-          detail.split("\n").forEach(line => {
-            line = line.trim();
-            if (line) {
-              const p = document.createElement("p");
-              p.textContent = line;
-              detailsDiv.appendChild(p);
-            }
+      try {
+        questionText.textContent = q.question;
+        updateSubjectHeader();
+        
+        let processedOptions = processOptions(q.options);
+        selectedDisplay.textContent = (userAnswers[index] !== null) ?
+            "선택한 답: " + processedOptions[userAnswers[index]] :
+            "선택한 답: 없음";
+        
+        detailsDiv.innerHTML = "";
+        if (q.details && q.details.length > 0) {
+          q.details.forEach(detail => {
+            detail.split("\n").forEach(line => {
+              line = line.trim();
+              if (line) {
+                const p = document.createElement("p");
+                p.textContent = line;
+                detailsDiv.appendChild(p);
+              }
+            });
           });
-        });
-      }
-      
-      optionsDiv.innerHTML = "";
-      feedbackDiv.textContent = "";
-      processedOptions.forEach((option, idx) => {
-        const btn = document.createElement("button");
-        btn.textContent = option;
-        btn.className = "option-btn";
-        if (option.length > 20) {
-          btn.classList.add("long-option");
-          btn.style.gridColumn = "span 2";
-        } else {
-          btn.classList.add("short-option");
         }
-        if (userAnswers[index] === idx) {
-          btn.classList.add("selected");
-        }
-        btn.addEventListener("click", function() {
-          if (currentMode === "practice") {
-            if (userAnswers[index] !== null) return;
-            userAnswers[index] = idx;
-            if (idx === q.answer - 1) {
-              feedbackDiv.style.color = "#5cb85c";
-              feedbackDiv.textContent = "정답입니다!";
-            } else {
-              feedbackDiv.style.color = "#d9534f";
-              feedbackDiv.textContent = `오답입니다. 정답은: ${processedOptions[q.answer - 1]}`;
-            }
-            updateNavTable();
+        
+        optionsDiv.innerHTML = "";
+        feedbackDiv.textContent = "";
+        processedOptions.forEach((option, idx) => {
+          const btn = document.createElement("button");
+          btn.textContent = option;
+          btn.className = "option-btn";
+          if (option.length > 20) {
+            btn.classList.add("long-option");
+            btn.style.gridColumn = "span 2";
           } else {
-            userAnswers[index] = idx;
-            updateNavTable();
+            btn.classList.add("short-option");
           }
-          selectedDisplay.textContent = "선택한 답: " + processedOptions[userAnswers[index]];
+          if (userAnswers[index] === idx) {
+            btn.classList.add("selected");
+          }
+          btn.addEventListener("click", function() {
+            console.log("버튼 클릭 - 현재 문제:", currentQuestionIndex, "선택한 인덱스:", idx);
+            if (currentMode === "practice") {
+              if (userAnswers[index] !== null) return;
+              userAnswers[index] = idx;
+              if (idx === q.answer - 1) {
+                feedbackDiv.style.color = "#5cb85c";
+                feedbackDiv.textContent = "정답입니다!";
+              } else {
+                feedbackDiv.style.color = "#d9534f";
+                feedbackDiv.textContent = `오답입니다. 정답은: ${processedOptions[q.answer - 1]}`;
+              }
+              updateNavTable();
+            } else {
+              userAnswers[index] = idx;
+              updateNavTable();
+            }
+            selectedDisplay.textContent = "선택한 답: " + processedOptions[userAnswers[index]];
+          });
+          optionsDiv.appendChild(btn);
         });
-        optionsDiv.appendChild(btn);
-      });
-      updateNavigation();
-      updateNavTable();
+        updateNavigation();
+        updateNavTable();
+      } catch (error) {
+        console.error("showQuestion 에러:", error);
+      }
       
       if (currentMode === "practice") {
         prevBtn.style.bottom = "80px";
@@ -774,6 +755,20 @@
         navTable.appendChild(btn);
       }
     }
+    
+    // 이전/다음 버튼 이벤트 (디버그 로그 포함)
+    prevBtn.addEventListener("click", function() {
+      console.log("이전 버튼 클릭, 현재 문제 인덱스:", currentQuestionIndex);
+      if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+      }
+    });
+    nextBtn.addEventListener("click", function() {
+      console.log("다음 버튼 클릭, 현재 문제 인덱스:", currentQuestionIndex);
+      if (currentQuestionIndex < questions.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+      }
+    });
     
     submitBtn.addEventListener("click", function() {
       let score = 0;
