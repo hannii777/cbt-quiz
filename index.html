@@ -28,7 +28,7 @@
       50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
       100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
     }
-    /* 상단 헤더 – 회차 문구가 너무 내려가지 않도록 */
+    /* 상단 헤더 – 기존 스타일 유지 */
     #main-header {
       position: absolute;
       top: 150px;
@@ -40,7 +40,7 @@
       text-align: center;
       cursor: default;
     }
-    /* 로그인/회원가입 버튼 (우측 상단) */
+    /* 우측 상단에 로그인/회원가입 버튼 추가 */
     #identity-button {
       position: fixed;
       top: 20px;
@@ -473,7 +473,7 @@
     netlifyIdentity.init();
   </script>
   
-  <!-- 로그인/회원가입 버튼 -->
+  <!-- 로그인/회원가입 또는 회원정보(로그아웃) 버튼 -->
   <button id="identity-button" onclick="netlifyIdentity.open()">로그인 / 회원가입</button>
   
   <div id="main-header">정수시설운영관리사 CBT</div>
@@ -493,7 +493,7 @@
       <li>실전모드: 전체 문제를 풀고 채점 결과를 확인하여 실제 시험처럼 진행합니다.</li>
     </ul>
     <div id="mode-buttons">
-      <!-- 모드 선택 버튼에 로그인 여부 체크 추가 -->
+      <!-- 모드 선택 시 로그인 여부를 체크 -->
       <button id="practice-mode-btn">연습모드</button>
       <button id="exam-mode-btn">실전모드</button>
     </div>
@@ -547,7 +547,39 @@
     </div>
   </div>
   
+  <!-- 기존 CBT 관련 스크립트 및 로그인 상태 체크 스크립트 -->
   <script>
+    // 로그인 상태에 따라 우측 버튼 업데이트 함수
+    function updateIdentityButton() {
+      const identityButton = document.getElementById("identity-button");
+      const user = netlifyIdentity.currentUser();
+      if (user) {
+        const displayName = user.user_metadata.full_name || user.email;
+        identityButton.textContent = displayName + " (로그아웃)";
+        identityButton.onclick = function() {
+          netlifyIdentity.logout();
+        };
+      } else {
+        identityButton.textContent = "로그인 / 회원가입";
+        identityButton.onclick = function() {
+          netlifyIdentity.open();
+        };
+      }
+    }
+    
+    // 로그인/로그아웃 이벤트 리스너 등록
+    netlifyIdentity.on('login', user => {
+      updateIdentityButton();
+      netlifyIdentity.close(); // 로그인 후 위젯 닫기
+    });
+    netlifyIdentity.on('logout', () => {
+      updateIdentityButton();
+    });
+    
+    // 페이지 로드 시 버튼 업데이트
+    document.addEventListener("DOMContentLoaded", updateIdentityButton);
+    
+    // 기존 CBT 관련 코드 (모드 선택, 회차 선택, 문제풀이, 채점 등)
     let questions = [];
     let currentQuestionIndex = 0;
     let userAnswers = [];
@@ -914,6 +946,8 @@
       currentSession = "";
     }
     goBackBtn.addEventListener("click", goToSessionSelection);
+    // mainHeader 클릭 시 넘어가지 않도록 기존 이벤트 제거
+    // mainHeader.addEventListener("click", goToSessionSelection);
     
     createSessionButtons();
     
