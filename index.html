@@ -9,7 +9,7 @@
   <!-- Netlify Identity 위젯 -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
-    /* 공통 스타일 */
+    /* 기본 공통 스타일 */
     body {
       font-family: 'Montserrat', sans-serif;
       margin: 0;
@@ -28,7 +28,7 @@
       50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
       100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
     }
-    /* 상단 버튼들 */
+    /* 상단 고정 버튼들 */
     #identity-button {
       position: fixed;
       top: 20px;
@@ -42,7 +42,6 @@
       font-size: 1em;
       z-index: 10000;
     }
-    /* 학습 통계 버튼 – 원래 위치(로그아웃 버튼 바로 아래) */
     #stats-btn {
       position: fixed;
       top: 60px;
@@ -55,18 +54,6 @@
       cursor: pointer;
       font-size: 1em;
       z-index: 10000;
-    }
-    /* 상단 헤더 */
-    #main-header {
-      position: absolute;
-      top: 150px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 28px;
-      font-weight: 700;
-      color: #0d6efd;
-      text-align: center;
-      cursor: default;
     }
     /* 모드 선택 화면 */
     #mode-container {
@@ -102,22 +89,47 @@
     #mode-buttons button:hover { background: #0b5ed7; transform: scale(1.05); }
     /* 회차 선택 화면 */
     #session-container {
+      position: relative;
       max-width: 800px;
       margin: 20px auto;
-      text-align: center;
       display: none;
+      padding-top: 60px; /* 상단 여백 확보 */
     }
-    #session-instruction {
-      font-size: 1.3em;
-      font-weight: bold;
+    /* 새로 추가된 세션 헤더 컨테이너: 상단 좌측에 배치 */
+    #session-header-container {
+      position: absolute;
+      top: 10px;
+      left: 20px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    /* 세션 헤더 텍스트: 회차 정보 */
+    #session-header-text {
+      font-size: 1.4em;
+      font-weight: 500;
       color: #0d6efd;
-      margin: 20px 0;
-      line-height: 1.6;
-      text-align: left;
+    }
+    /* 모드 선택 버튼 (세션 선택 화면 상단, 헤더 컨테이너 내) */
+    #back-to-mode-btn {
+      padding: 8px 12px;
+      background: #6c757d;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #back-to-mode-btn:hover { background: #5b636a; }
+    /* 세션 선택 문구 (헤더 컨테이너 오른쪽) */
+    #session-instruction {
+      font-size: 1.1em;
+      color: #0d6efd;
+      margin: 0;
       padding-left: 20px;
-      word-spacing: 0.5em;
     }
     #session-selection {
+      margin-top: 80px;
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 15px;
@@ -153,9 +165,7 @@
       overflow-x: hidden;
       flex-shrink: 0;
     }
-    /* 퀴즈 화면에 position:relative 추가하여 내부 절대 위치 요소가 제대로 배치되도록 함 */
-    #quiz-container { position: relative; }
-    /* 이전 버튼(백 스크린 버튼) 위치 및 문구 변경 */
+    /* 퀴즈 화면 상단의 이전 버튼(문구 '이전') 오른쪽 상단에 위치 */
     #back-screen-btn {
       position: absolute;
       top: 10px;
@@ -169,15 +179,10 @@
       transition: background 0.2s;
     }
     #back-screen-btn:hover { background: #5b636a; }
-    /* 세션명 위치 및 정렬: 과목명 위로 이동, 왼쪽 정렬 */
-    #session-name {
-      text-align: left;
-      margin-bottom: 10px;
-      font-size: 1.2em;
-      font-weight: 500;
-      color: #0d6efd;
-    }
-    #subject-header { margin-top: 0; }
+    /* 세션명(회차 정보)는 이제 세션 헤더 컨테이너에 포함되므로 #session-name는 제거하거나 숨김 */
+    #session-name { display: none; }
+    /* 과목명은 그대로 */
+    #subject-header { font-size: 18px; font-weight: 500; margin-bottom: 10px; color: #0d6efd; }
     .question { font-size: 1.2em; margin-bottom: 20px; padding-left: 1em; text-indent: -1em; word-break: keep-all; overflow-wrap: break-word; }
     #selected-display { font-size: 1.1em; color: #555; margin-bottom: 10px; }
     #question-area { padding-bottom: 80px; }
@@ -224,11 +229,7 @@
     #prev-btn:disabled, #next-btn:disabled { background: #ccc; cursor: not-allowed; }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    /* "모드선택" 버튼 */
-    #back-screen-btn, #back-to-mode-btn {
-      /* 이미 사용 중인 back-screen-btn를 위에서 재정의했으므로, 여기서는 사용하지 않습니다. */
-    }
-    /* 오른쪽 패널 (네비게이션 및 채점하기 버튼) */
+    /* 오른쪽 패널 */
     #right-panel {
       position: fixed;
       top: 120px;
@@ -273,10 +274,8 @@
       transition: background 0.2s;
     }
     #submit-btn:hover { background: #0b5ed7; }
-    /* 채점 결과 모달 */
-    #result-modal-overlay, 
-    /* 학습 통계 모달 */
-    #stats-modal-overlay {
+    /* 모달들 */
+    #result-modal-overlay, #stats-modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.5);
@@ -296,7 +295,6 @@
       overflow-y: auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    /* 모달 헤더 */
     #result-modal-header, #stats-modal-header {
       margin: 0;
       display: flex;
@@ -374,20 +372,19 @@
   </div>
   
   <!-- 회차 선택 화면 -->
-  <div id="session-container" style="display:none;">
-    <button id="back-to-mode-btn">모드 선택 (이전화면)</button>
-    <p id="session-instruction">
-      오늘 공부할 회차를 선택해 주세요. 여러분의 열정을 응원합니다!
-    </p>
+  <div id="session-container" style="display:none; position: relative;">
+    <!-- 새로 추가한 세션 헤더 컨테이너 (상단 좌측에 배치) -->
+    <div id="session-header-container">
+      <span id="session-header-text">정수시설운영관리사 00회_2급</span>
+      <button id="back-to-mode-btn">모드 선택</button>
+      <p id="session-instruction">오늘 공부할 회차를 선택해 주세요. 여러분의 열정을 응원합니다!</p>
+    </div>
     <div id="session-selection"></div>
   </div>
   
   <!-- 퀴즈 화면 -->
   <div id="quiz-container" style="display:none; position: relative;">
-    <!-- 이전 버튼을 오른쪽 상단으로 이동 및 문구 변경 -->
     <button id="back-screen-btn" style="position: absolute; top: 10px; right: 10px;">이전</button>
-    <!-- 세션명: 과목명 위로 이동, 왼쪽 정렬 -->
-    <div id="session-name" style="text-align: left; margin-bottom: 10px;"></div>
     <div id="subject-header"></div>
     <div id="question-area">
       <p class="question" id="question-text"></p>
@@ -443,9 +440,7 @@
     function closeModal(modalId) {
       document.getElementById(modalId + "-overlay").style.display = "none";
       document.body.classList.remove("modal-open");
-      if(modalId === "result-modal") {
-        document.getElementById("right-panel").style.display = "none";
-      }
+      if(modalId === "result-modal") { document.getElementById("right-panel").style.display = "none"; }
     }
     
     // 로그인 상태 업데이트
@@ -486,7 +481,6 @@
     const backToModeBtn = document.getElementById("back-to-mode-btn");
     const quizContainer = document.getElementById("quiz-container");
     const backScreenBtn = document.getElementById("back-screen-btn");
-    const sessionNameDiv = document.getElementById("session-name");
     const subjectHeader = document.getElementById("subject-header");
     const questionText = document.getElementById("question-text");
     const selectedDisplay = document.getElementById("selected-display");
@@ -536,6 +530,15 @@
       rightPanel.style.display = "none";
     });
     
+    // 세션 선택 화면에서는 전역 헤더를 숨기고, 대신 #session-header-container가 사용됨
+    function showSessionHeader(sessionText) {
+      // 세션 선택 화면에서는 숨겨진 전역 헤더 대신 새로운 컨테이너에 표시
+      document.getElementById("main-header").style.display = "none";
+      const headerContainer = document.getElementById("session-header-container");
+      headerContainer.style.display = "flex";
+      document.getElementById("session-header-text").textContent = sessionText;
+    }
+    
     backToModeBtn.addEventListener("click", function() {
       sessionContainer.style.display = "none";
       modeContainer.style.display = "block";
@@ -543,11 +546,10 @@
       modeContainer.style.justifyContent = "";
       rightPanel.style.display = "none";
       navTable.innerHTML = "";
+      document.getElementById("main-header").style.display = "block";
     });
     
-    backScreenBtn.addEventListener("click", function() {
-      goToModeSelection();
-    });
+    backScreenBtn.addEventListener("click", function() { goToModeSelection(); });
     
     function goToModeSelection() {
       resultModalOverlay.style.display = "none";
@@ -559,7 +561,7 @@
       modeContainer.style.display = "block";
       sessionContainer.style.display = "none";
       mainHeader.textContent = "정수시설운영관리사 CBT";
-      sessionNameDiv.textContent = "";
+      mainHeader.style.display = "block";
       navTable.innerHTML = "";
       questions = [];
       userAnswers = [];
@@ -588,13 +590,12 @@
           userAnswers = new Array(questions.length).fill(null);
           currentSession = `정수시설운영관리사 ${session}회_2급`;
           mainHeader.textContent = currentSession;
-          sessionNameDiv.textContent = currentSession;
-          sessionContainer.style.display = "none";
-          quizContainer.style.display = "block";
-          rightPanel.style.display = "block";
+          // 세션 선택 화면에서는 전역 헤더 대신 세션 헤더 컨테이너를 사용
+          showSessionHeader(currentSession);
+          sessionContainer.style.display = "block";
+          quizContainer.style.display = "none";
+          rightPanel.style.display = "none";
           navTable.innerHTML = "";
-          showQuestion(0);
-          updateNavTable();
         })
         .catch(error => alert("문제를 불러오는 데 실패했습니다: " + error.message));
     }
@@ -928,7 +929,7 @@
       modeContainer.style.display = "block";
       sessionContainer.style.display = "none";
       mainHeader.textContent = "정수시설운영관리사 CBT";
-      sessionNameDiv.textContent = "";
+      mainHeader.style.display = "block";
       navTable.innerHTML = "";
       questions = [];
       userAnswers = [];
