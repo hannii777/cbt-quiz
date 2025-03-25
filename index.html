@@ -859,8 +859,14 @@
           });
         }
       });
-      latestResult = { score, total: questions.length, wrongBySubject, correctBySubject };
-      
+      latestResult = { 
+        score, 
+        total: questions.length,
+        wrongBySubject,
+        currentSession = `정수시설운영관리사 ${session}회_2급`;
+        date: new Date(),
+        session: currentSession
+      };
       // 로컬 스토리지에 결과 저장
       let results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
       results.push(latestResult);
