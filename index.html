@@ -40,10 +40,10 @@
       text-align: center;
       cursor: default;
     }
-    /* 우측 상단에 로그인/회원가입 버튼 */
+    /* 오른쪽 하단에 로그인/회원가입 (또는 로그아웃) 버튼 */
     #identity-button {
       position: fixed;
-      top: 20px;
+      bottom: 20px; /* 상단 대신 하단 배치 */
       right: 20px;
       padding: 10px 15px;
       background: #0d6efd;
@@ -189,7 +189,7 @@
       margin-bottom: 10px;
     }
     #question-area {
-      padding-bottom: 80px;
+      padding-bottom: 80px; /* 내용이 버튼에 가리지 않도록 여백 확보 */
     }
     .details p {
       margin-top: 6px;
@@ -232,9 +232,14 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    /* 이전/다음 버튼 */
-    #prev-btn, #next-btn {
-      position: absolute;
+    /* 내비게이션 버튼 영역 (quiz-container 바깥에 별도 배치) */
+    #navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      width: 800px;
+      margin: 10px auto 20px auto;
+    }
+    #navigation-buttons button {
       padding: 10px 20px;
       background: #0d6efd;
       color: #fff;
@@ -242,47 +247,10 @@
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.2s;
-      z-index: 9999;
     }
-    #prev-btn:disabled, #next-btn:disabled {
+    #navigation-buttons button:disabled {
       background: #ccc;
       cursor: not-allowed;
-    }
-    #prev-btn { left: 40px; }
-    #next-btn { right: 40px; }
-    /* “이전화면” 버튼 */
-    #back-screen-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      padding: 8px 12px;
-      background: #6c757d;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-      z-index: 1100;
-    }
-    #back-screen-btn:hover {
-      background: #5b636a;
-    }
-    /* 모드 선택(이전화면) 버튼 */
-    #back-to-mode-btn {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      padding: 8px 12px;
-      background: #6c757d;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.2s;
-      z-index: 1100;
-    }
-    #back-to-mode-btn:hover {
-      background: #5b636a;
     }
     /* 오른쪽 고정 패널 (로그아웃 버튼과 겹치지 않도록 top 값을 70px로 조정) */
     #right-panel {
@@ -441,14 +409,8 @@
         padding-left: 1.6em;
         text-indent: -1.6em;
       }
-      #prev-btn, #next-btn {
-        padding: 8px 12px;
-      }
-      #quiz-container {
-        width: 800px;
-        height: 600px;
-        overflow-y: auto;
-        overflow-x: hidden;
+      #navigation-buttons {
+        width: 90%;
       }
       #subject-summary {
         font-size: 0.8em;
@@ -520,6 +482,10 @@
       <div id="options" class="options"></div>
       <div id="feedback"></div>
     </div>
+  </div>
+  
+  <!-- 내비게이션 버튼: quiz-container 하단 별도 영역 -->
+  <div id="navigation-buttons" style="display: none;">
     <button id="prev-btn">이전 문제</button>
     <button id="next-btn">다음 문제</button>
   </div>
@@ -618,6 +584,7 @@
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
     const subjectSummary = document.getElementById("subject-summary");
+    const navigationButtons = document.getElementById("navigation-buttons");
     
     // 회차 선택 안내 문구 파도 애니메이션
     function animateSessionInstruction() {
@@ -645,6 +612,7 @@
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
       rightPanel.style.display = "none";
+      navigationButtons.style.display = "none";
     });
     examModeBtn.addEventListener("click", function() {
       if (!netlifyIdentity.currentUser()) {
@@ -656,6 +624,7 @@
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
       rightPanel.style.display = "none";
+      navigationButtons.style.display = "none";
     });
     
     backToModeBtn.addEventListener("click", function() {
@@ -696,6 +665,7 @@
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
           rightPanel.style.display = "block";
+          navigationButtons.style.display = "flex";
           navTable.innerHTML = "";
           showQuestion(0);
           updateNavTable();
@@ -783,14 +753,6 @@
       } catch (error) {
         console.error("showQuestion 에러:", error);
       }
-      
-      if (currentMode === "practice") {
-        prevBtn.style.bottom = "80px";
-        nextBtn.style.bottom = "80px";
-      } else {
-        prevBtn.style.bottom = "20px";
-        nextBtn.style.bottom = "20px";
-      }
     }
     
     function updateOptions() {
@@ -843,8 +805,7 @@
     
     submitBtn.addEventListener("click", function() {
       // 채점 결과 모달이 뜨기 전에 이전/다음 버튼 및 네비게이션 패널 숨김
-      prevBtn.style.visibility = "hidden";
-      nextBtn.style.visibility = "hidden";
+      navigationButtons.style.display = "none";
       rightPanel.style.display = "none";
       
       let score = 0;
@@ -920,8 +881,7 @@
     function closeModalWithConfirm() {
       if (confirm("정말 닫겠습니까?")) {
         modalOverlay.style.display = "none";
-        prevBtn.style.visibility = "visible";
-        nextBtn.style.visibility = "visible";
+        navigationButtons.style.display = "flex";
         rightPanel.style.display = "block";
       }
     }
@@ -939,6 +899,7 @@
       modalOverlay.style.display = "none";
       quizContainer.style.display = "none";
       rightPanel.style.display = "none";
+      navigationButtons.style.display = "none";
       sessionContainer.style.display = "block";
       mainHeader.textContent = "정수시설운영관리사 CBT";
       sessionNameDiv.textContent = "";
