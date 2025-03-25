@@ -43,7 +43,7 @@
       font-weight: 700;
       color: #0d6efd;
     }
-    /* 헤더 내 모드 선택 버튼 (기본은 숨김) */
+    /* 회차 선택 화면 및 퀴즈 화면에서 보이는 "모드 선택" 버튼 */
     #back-to-mode-btn {
       padding: 8px 12px;
       background: #6c757d;
@@ -52,7 +52,7 @@
       border-radius: 6px;
       cursor: pointer;
       transition: background 0.2s;
-      display: none;
+      display: none; /* 기본은 숨김; 이벤트에 따라 표시 */
     }
     #back-to-mode-btn:hover {
       background: #5b636a;
@@ -185,15 +185,7 @@
       overflow-x: hidden;
       flex-shrink: 0;
     }
-    /* 퀴즈 화면 상단 왼쪽에 회차 정보 (#quiz-session-info) 추가 */
-    #quiz-session-info {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      font-size: 1.2em;
-      color: #0d6efd;
-    }
-    /* 퀴즈 화면 상단 오른쪽 "이전" 버튼 */
+    /* 퀴즈 화면 상단 오른쪽에 "이전" 버튼 (회차 선택 화면으로 돌아감) */
     #back-screen-btn {
       position: absolute;
       top: 10px;
@@ -208,6 +200,14 @@
     }
     #back-screen-btn:hover {
       background: #5b636a;
+    }
+    /* 퀴즈 화면 상단 오른쪽에 회차 정보 (#quiz-session-info) 표시 */
+    #quiz-session-info {
+      position: absolute;
+      top: 10px;
+      right: 80px; /* 오른쪽 여백을 늘려 "이전" 버튼과 간격 조정 */
+      font-size: 1.2em;
+      color: #0d6efd;
     }
     /* 과목명 */
     #subject-header {
@@ -290,7 +290,7 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    /* 오른쪽 패널 (네비게이션 및 채점하기 버튼) */
+    /* 오른쪽 패널 (숫자 네비게이션 및 채점하기 버튼) */
     #right-panel {
       position: fixed;
       top: 120px;
@@ -346,7 +346,10 @@
     #result-modal-overlay,
     #stats-modal-overlay {
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: rgba(0,0,0,0.5);
       display: none;
       justify-content: center;
@@ -427,7 +430,8 @@
         padding-left: 1.6em;
         text-indent: -1.6em;
       }
-      #prev-btn, #next-btn {
+      #prev-btn,
+      #next-btn {
         padding: 8px 12px;
       }
       #quiz-container {
@@ -456,7 +460,7 @@
   <!-- 상단 고정 헤더 컨테이너 -->
   <div id="header-container">
     <span id="main-header">정수시설운영관리사 CBT</span>
-    <!-- 이 버튼은 회차 선택 화면이나 퀴즈 화면에서 모드 선택으로 돌아갈 때 사용 -->
+    <!-- 이 버튼은 회차 선택 및 퀴즈 화면에서 모드 선택으로 돌아갈 때 사용 (보여줄 때만) -->
     <button id="back-to-mode-btn">모드 선택</button>
   </div>
   
@@ -490,10 +494,10 @@
   
   <!-- 퀴즈 화면 -->
   <div id="quiz-container" style="display:none; position: relative;">
-    <!-- 퀴즈 화면 상단 왼쪽에 회차 정보 표시 -->
-    <div id="quiz-session-info" style="position: absolute; top: 10px; left: 10px; font-size: 1.2em; color: #0d6efd;"></div>
-    <!-- 퀴즈 화면 상단 오른쪽에 "이전" 버튼 (누르면 회차 선택 화면으로 돌아감) -->
+    <!-- 퀴즈 화면 상단 오른쪽에 "이전" 버튼 (회차 선택 화면으로 돌아감) -->
     <button id="back-screen-btn" style="position: absolute; top: 10px; right: 10px;">이전</button>
+    <!-- 퀴즈 화면 상단 오른쪽에 회차 정보 표시 -->
+    <div id="quiz-session-info" style="position: absolute; top: 10px; right: 80px; font-size: 1.2em; color: #0d6efd;"></div>
     <div id="subject-header"></div>
     <div id="question-area">
       <p class="question" id="question-text"></p>
@@ -641,13 +645,11 @@
       backToModeBtn.style.display = "inline-block";
     });
     
-    // 수정: 회차 선택 화면에서 모드 선택 버튼 클릭 시,
-    // 만약 퀴즈 화면이 보이고 있다면(문제를 풀고 있다면) 회차 선택 화면으로 전환하도록 함.
+    // 수정: 모드 선택 버튼(#back-to-mode-btn)을 누르면,
+    // 퀴즈 화면이 보이고 있다면 완전히 모드 선택 화면으로 전환하여 문제풀이 화면의 고정 요소들이 모두 사라지도록 함.
     backToModeBtn.addEventListener("click", function() {
       if (quizContainer.style.display === "block") {
-        // 퀴즈 화면에서 "모드 선택" 버튼을 누르면 회차 선택 화면으로 돌아감.
-        quizContainer.style.display = "none";
-        sessionContainer.style.display = "block";
+        goToModeSelection();
       } else {
         sessionContainer.style.display = "none";
         modeContainer.style.display = "block";
@@ -698,7 +700,7 @@
           questions = data;
           userAnswers = new Array(questions.length).fill(null);
           currentSession = `정수시설운영관리사 ${session}회_2급`;
-          // 업데이트: 퀴즈 화면 상단 왼쪽에 회차 정보 표시
+          // 퀴즈 화면 상단 오른쪽에 회차 정보 업데이트
           quizSessionInfo.textContent = currentSession;
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
