@@ -281,10 +281,10 @@
     #back-screen-btn:hover, #back-to-mode-btn:hover {
       background: #5b636a;
     }
-    /* 오른쪽 고정 패널 – 원래 디자인 그대로 */
+    /* 오른쪽 고정 패널 – 수정: top 값을 120px로 변경 */
     #right-panel {
       position: fixed;
-      top: 70px;
+      top: 120px;
       right: 20px;
       display: none;
       background: #fff;
@@ -333,7 +333,7 @@
     #submit-btn:hover {
       background: #0b5ed7;
     }
-    /* 채점 결과 모달창 – 원래 디자인 그대로 */
+    /* 채점 결과 모달창 – 원래 디자인 그대로 (오답수 박스 제거) */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -404,28 +404,6 @@
     #go-back-btn:hover {
       background: #218838;
     }
-    #subject-summary {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      border: 1px solid #ddd;
-      background: #f8f9fa;
-      padding: 5px;
-      font-size: 0.9em;
-      z-index: 1100;
-    }
-    #subject-summary table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    #subject-summary th, #subject-summary td {
-      border: 1px solid #ccc;
-      padding: 2px 5px;
-      text-align: center;
-    }
-    #subject-summary th {
-      background: #e9ecef;
-    }
     @media (max-width: 768px) {
       .question {
         font-size: 1.1em;
@@ -446,9 +424,6 @@
         overflow-y: auto;
         overflow-x: hidden;
       }
-      #subject-summary {
-        font-size: 0.8em;
-      }
     }
     .wave span {
       display: inline-block;
@@ -468,7 +443,7 @@
   </script>
   
   <button id="identity-button" onclick="netlifyIdentity.open()">로그인 / 회원가입</button>
-  <!-- 학습 통계 보기 버튼 (추가) -->
+  <!-- 학습 통계 보기 버튼 (위치 조정으로 네비게이션과 겹치지 않음) -->
   <button id="stats-btn">학습 통계 보기</button>
   
   <div id="main-header">정수시설운영관리사 CBT</div>
@@ -519,6 +494,7 @@
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
+  <!-- 모달창: 과목별 오답수 박스 제거 -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
@@ -526,7 +502,6 @@
         <small>(ESC를 누르시면 창을 종료할 수 있습니다!!)</small>
         <button class="close-x" id="modal-close">&times;</button>
       </h2>
-      <div id="subject-summary"></div>
       <div id="modal-session-name" style="font-weight:500; margin-bottom:10px; color:#0d6efd;"></div>
       <div id="modal-content"></div>
       <div class="modal-buttons">
@@ -537,7 +512,7 @@
   </div>
   
   <script>
-    // 로그인 상태 업데이트 함수
+    // 로그인 상태 업데이트
     function updateIdentityButton() {
       const identityButton = document.getElementById("identity-button");
       const user = netlifyIdentity.currentUser();
@@ -565,6 +540,7 @@
       updateIdentityButton();
       createSessionButtons();
     });
+    
     let questions = [];
     let currentQuestionIndex = 0;
     let userAnswers = [];
@@ -602,7 +578,6 @@
     const modalCloseX = document.getElementById("modal-close");
     const goBackBtn = document.getElementById("go-back-btn");
     const mainHeader = document.getElementById("main-header");
-    const subjectSummary = document.getElementById("subject-summary");
     
     // 애니메이션 효과 (회차 선택 안내)
     function animateSessionInstruction() {
@@ -810,7 +785,7 @@
       }
     });
     
-    // 로컬 스토리지에 퀴즈 결과 저장 (학습 기록 기능 1번)
+    // 로컬 스토리지에 퀴즈 결과 저장 (학습 기록 기능)
     function saveQuizResult(score, total, wrongBySubject, correctBySubject) {
       const quizRecord = {
         date: new Date().toISOString(),
@@ -826,7 +801,7 @@
       localStorage.setItem('cbtQuizResults', JSON.stringify(resultsArray));
     }
     
-    // 채점 후 결과 처리 및 모달 표시 (기존 submitBtn 핸들러 수정)
+    // 채점 후 결과 처리 및 모달 표시
     submitBtn.addEventListener("click", function() {
       prevBtn.style.visibility = "hidden";
       nextBtn.style.visibility = "hidden";
@@ -863,22 +838,8 @@
         }
       });
       
-      let summaryHTML = `<table>
-        <tr>
-          <th>과목</th>
-          <th>오답 수</th>
-        </tr>`;
-      const subjects = ["1과목 수처리공정", "2과목 수질분석 및 관리", "3과목 설비운영(기계ㆍ장치 또는 계측기 등)", "4과목 정수시설 수리학"];
-      subjects.forEach(subj => {
-        summaryHTML += `<tr>
-          <td>${subj}</td>
-          <td>${wrongBySubject[subj].length}</td>
-        </tr>`;
-      });
-      summaryHTML += `</table>`;
-      subjectSummary.innerHTML = summaryHTML;
-      
       let resultHTML = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>`;
+      const subjects = ["1과목 수처리공정", "2과목 수질분석 및 관리", "3과목 설비운영(기계ㆍ장치 또는 계측기 등)", "4과목 정수시설 수리학"];
       subjects.forEach(subj => {
         resultHTML += `<h3>${subj}</h3>`;
         if (wrongBySubject[subj].length > 0) {
@@ -898,7 +859,7 @@
         }
       });
       
-      // 로컬에 학습 기록 저장 (기능 1번)
+      // 로컬에 학습 기록 저장
       saveQuizResult(score, questions.length, wrongBySubject, correctBySubject);
       
       modalSessionName.textContent = currentSession;
@@ -941,7 +902,7 @@
     }
     goBackBtn.addEventListener("click", goToSessionSelection);
     
-    // 학습 통계 보기 기능 (기능 2번)
+    // 학습 통계 보기 기능
     function showDetailedStatistics() {
       const results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
       let statsHTML = '<h2>학습 기록</h2>';
@@ -953,28 +914,6 @@
             <h3>시도 ${index + 1} (${new Date(result.date).toLocaleString()})</h3>
             <p>회차: ${result.session}</p>
             <p>점수: ${result.score} / ${result.total}</p>
-            <table style="width:100%; border-collapse: collapse;">
-              <tr>
-                <th style="border: 1px solid #ddd; padding: 8px;">과목</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">오답 수</th>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">1과목 수처리공정</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["1과목 수처리공정"] ? result.wrongBySubject["1과목 수처리공정"].length : 0}</td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">2과목 수질분석 및 관리</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["2과목 수질분석 및 관리"] ? result.wrongBySubject["2과목 수질분석 및 관리"].length : 0}</td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">3과목 설비운영(기계ㆍ장치 또는 계측기 등)</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"] ? result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"].length : 0}</td>
-              </tr>
-              <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">4과목 정수시설 수리학</td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["4과목 정수시설 수리학"] ? result.wrongBySubject["4과목 정수시설 수리학"].length : 0}</td>
-              </tr>
-            </table>
           </div>`;
         });
       }
@@ -983,7 +922,7 @@
       modalOverlay.style.display = "flex";
     }
     
-    // 학습 통계 보기 버튼 이벤트 등록 (추가)
+    // 학습 통계 보기 버튼 이벤트 등록
     document.getElementById('stats-btn').addEventListener('click', showDetailedStatistics);
     
     function processOptions(options) {
@@ -1002,6 +941,7 @@
       });
       return newOptions;
     }
+    
   </script>
 </body>
 </html>
