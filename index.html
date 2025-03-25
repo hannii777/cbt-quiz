@@ -28,6 +28,10 @@
       50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
       100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
     }
+    /* 모달창 시 body에 modal-open 클래스가 있으면 로그아웃 버튼 숨김 */
+    .modal-open #identity-button {
+      display: none !important;
+    }
     /* 상단 헤더 – 기존 스타일 유지 */
     #main-header {
       position: absolute;
@@ -150,7 +154,7 @@
     #quiz-container {
       position: relative;
       width: 800px !important;
-      min-height: 600px;  /* 고정 높이 대신 최소 높이 사용 */
+      min-height: 600px;
       margin: 20px auto;
       background: #fff;
       padding: 40px;
@@ -188,8 +192,9 @@
       color: #555;
       margin-bottom: 10px;
     }
+    /* 답안 영역 아래쪽에 충분한 여백 추가 */
     #question-area {
-      padding-bottom: 120px; /* 여유 패딩 추가 */
+      padding-bottom: 150px;
     }
     .details p {
       margin-top: 6px;
@@ -512,9 +517,9 @@
     </div>
   </div>
   
-  <!-- 기존 CBT 관련 스크립트 및 로그인 상태 체크 -->
+  <!-- CBT 관련 스크립트 -->
   <script>
-    // 로그인 상태에 따라 우측 버튼 업데이트
+    // 로그인 상태에 따라 버튼 업데이트
     function updateIdentityButton() {
       const identityButton = document.getElementById("identity-button");
       const user = netlifyIdentity.currentUser();
@@ -532,7 +537,6 @@
       }
     }
     
-    // 로그인/로그아웃 이벤트 리스너 등록
     netlifyIdentity.on('login', user => {
       updateIdentityButton();
       netlifyIdentity.close();
@@ -542,7 +546,7 @@
     });
     document.addEventListener("DOMContentLoaded", updateIdentityButton);
     
-    // CBT 관련 변수 및 요소들
+    // CBT 관련 변수 및 요소
     let questions = [];
     let currentQuestionIndex = 0;
     let userAnswers = [];
@@ -794,11 +798,11 @@
     });
     
     submitBtn.addEventListener("click", function() {
-      // 채점 결과 모달 전에 내비게이션과 오른쪽 패널 숨김
+      // 채점 결과 모달을 열기 전에 내비게이션 및 오른쪽 패널 숨김
       navigationButtons.style.display = "none";
       rightPanel.style.display = "none";
-      // 모달이 열릴 때 로그아웃 버튼 숨김
-      document.getElementById("identity-button").style.display = "none";
+      // 모달 열릴 때 body에 클래스 추가하여 로그아웃 버튼 숨김
+      document.body.classList.add("modal-open");
       
       let score = 0;
       const wrongBySubject = {
@@ -875,8 +879,7 @@
         modalOverlay.style.display = "none";
         navigationButtons.style.display = "flex";
         rightPanel.style.display = "block";
-        // 모달 닫힐 때 로그아웃 버튼 다시 보이도록
-        document.getElementById("identity-button").style.display = "block";
+        document.body.classList.remove("modal-open");
       }
     }
     
