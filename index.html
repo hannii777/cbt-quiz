@@ -185,11 +185,11 @@
       overflow-x: hidden;
       flex-shrink: 0;
     }
-    /* 퀴즈 화면 상단 왼쪽에 회차 정보 표시 (#quiz-session-info) */
+    /* 퀴즈 화면 상단 왼쪽에 회차 정보 표시 */
     #quiz-session-info {
       position: absolute;
       top: 10px;
-      left: 40px; /* 과목명 시작 위치와 일치하도록 조정 */
+      left: 40px;
       font-size: 1.2em;
       color: #0d6efd;
     }
@@ -645,8 +645,7 @@
       backToModeBtn.style.display = "inline-block";
     });
     
-    // 수정: 모드 선택 버튼(#back-to-mode-btn)을 클릭하면
-    // 퀴즈 화면이 보이는 경우 goToModeSelection() 호출하여 모든 문제풀이 관련 요소를 숨김.
+    // 모드 선택 버튼 클릭 시, 퀴즈 화면이 보이고 있다면 goToModeSelection() 호출
     backToModeBtn.addEventListener("click", function() {
       if (quizContainer.style.display === "block") {
         goToModeSelection();
@@ -657,7 +656,7 @@
       }
     });
     
-    // 퀴즈 화면의 "이전" 버튼 -> 회차 선택 화면으로 전환
+    // 퀴즈 화면 "이전" 버튼 클릭 시 회차 선택 화면으로 전환
     backScreenBtn.addEventListener("click", function() {
       quizContainer.style.display = "none";
       sessionContainer.style.display = "block";
@@ -700,7 +699,7 @@
           questions = data;
           userAnswers = new Array(questions.length).fill(null);
           currentSession = `정수시설운영관리사 ${session}회_2급`;
-          // 업데이트: 퀴즈 화면 상단 왼쪽의 회차 정보 업데이트
+          // 업데이트: 퀴즈 화면 상단의 회차 정보 업데이트
           quizSessionInfo.textContent = currentSession;
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
@@ -863,10 +862,11 @@
         score, 
         total: questions.length,
         wrongBySubject,
-        currentSession = `정수시설운영관리사 ${session}회_2급`;
+        correctBySubject,
         date: new Date(),
         session: currentSession
       };
+      
       // 로컬 스토리지에 결과 저장
       let results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
       results.push(latestResult);
@@ -963,19 +963,27 @@
                 <th style="border:1px solid #ddd; padding:8px;">오답 수</th>
               </tr>
               <tr>
-                <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-stats" data-session-index="${index}" data-subject="1과목 수처리공정" style="cursor:pointer; color:blue; text-decoration:underline;">1과목 수처리공정</span></td>
+                <td style="border:1px solid #ddd; padding:8px;">
+                  <span class="subject-click-stats" data-session-index="${index}" data-subject="1과목 수처리공정" style="cursor:pointer; color:blue; text-decoration:underline;">1과목 수처리공정</span>
+                </td>
                 <td style="border:1px solid #ddd; padding:8px;">${result.wrongBySubject["1과목 수처리공정"] ? result.wrongBySubject["1과목 수처리공정"].length : 0}</td>
               </tr>
               <tr>
-                <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-stats" data-session-index="${index}" data-subject="2과목 수질분석 및 관리" style="cursor:pointer; color:blue; text-decoration:underline;">2과목 수질분석 및 관리</span></td>
+                <td style="border:1px solid #ddd; padding:8px;">
+                  <span class="subject-click-stats" data-session-index="${index}" data-subject="2과목 수질분석 및 관리" style="cursor:pointer; color:blue; text-decoration:underline;">2과목 수질분석 및 관리</span>
+                </td>
                 <td style="border:1px solid #ddd; padding:8px;">${result.wrongBySubject["2과목 수질분석 및 관리"] ? result.wrongBySubject["2과목 수질분석 및 관리"].length : 0}</td>
               </tr>
               <tr>
-                <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-stats" data-session-index="${index}" data-subject="3과목 설비운영(기계ㆍ장치 또는 계측기 등)" style="cursor:pointer; color:blue; text-decoration:underline;">3과목 설비운영(기계ㆍ장치 또는 계측기 등)</span></td>
+                <td style="border:1px solid #ddd; padding:8px;">
+                  <span class="subject-click-stats" data-session-index="${index}" data-subject="3과목 설비운영(기계ㆍ장치 또는 계측기 등)" style="cursor:pointer; color:blue; text-decoration:underline;">3과목 설비운영(기계ㆍ장치 또는 계측기 등)</span>
+                </td>
                 <td style="border:1px solid #ddd; padding:8px;">${result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"] ? result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"].length : 0}</td>
               </tr>
               <tr>
-                <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-stats" data-session-index="${index}" data-subject="4과목 정수시설 수리학" style="cursor:pointer; color:blue; text-decoration:underline;">4과목 정수시설 수리학</span></td>
+                <td style="border:1px solid #ddd; padding:8px;">
+                  <span class="subject-click-stats" data-session-index="${index}" data-subject="4과목 정수시설 수리학" style="cursor:pointer; color:blue; text-decoration:underline;">4과목 정수시설 수리학</span>
+                </td>
                 <td style="border:1px solid #ddd; padding:8px;">${result.wrongBySubject["4과목 정수시설 수리학"] ? result.wrongBySubject["4과목 정수시설 수리학"].length : 0}</td>
               </tr>
             </table>
