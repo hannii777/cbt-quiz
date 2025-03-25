@@ -558,6 +558,16 @@
       }
     }
     
+    // 모달 하단의 "닫기" 버튼 이벤트 추가
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("result-close-modal").addEventListener("click", function() {
+        closeModal("result-modal");
+      });
+      document.getElementById("stats-close-modal").addEventListener("click", function() {
+        closeModal("stats-modal");
+      });
+    });
+    
     // 로그인 상태 업데이트
     function updateIdentityButton() {
       const identityButton = document.getElementById("identity-button");
@@ -645,7 +655,7 @@
       backToModeBtn.style.display = "inline-block";
     });
     
-    // 모드 선택 버튼 클릭 시, 퀴즈 화면이 보이고 있다면 goToModeSelection() 호출
+    // 모드 선택 버튼 클릭 시, 퀴즈 화면이 보이면 완전히 모드 선택 화면으로 전환
     backToModeBtn.addEventListener("click", function() {
       if (quizContainer.style.display === "block") {
         goToModeSelection();
@@ -656,7 +666,7 @@
       }
     });
     
-    // 퀴즈 화면 "이전" 버튼 클릭 시 회차 선택 화면으로 전환
+    // 퀴즈 화면의 "이전" 버튼 클릭 시 회차 선택 화면으로 전환 (오른쪽 패널도 숨김)
     backScreenBtn.addEventListener("click", function() {
       quizContainer.style.display = "none";
       sessionContainer.style.display = "block";
@@ -701,7 +711,7 @@
           questions = data;
           userAnswers = new Array(questions.length).fill(null);
           currentSession = `정수시설운영관리사 ${session}회_2급`;
-          // 업데이트: 퀴즈 화면 상단의 회차 정보 업데이트
+          // 퀴즈 화면 상단의 회차 정보 업데이트
           quizSessionInfo.textContent = currentSession;
           sessionContainer.style.display = "none";
           quizContainer.style.display = "block";
