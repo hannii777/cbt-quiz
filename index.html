@@ -47,10 +47,24 @@
     /* 오른쪽 상단(원래) 또는 원하는 위치의 로그인/회원가입 버튼 */
     #identity-button {
       position: fixed;
-      top: 20px;  /* 원래 코드에서는 상단 오른쪽에 있었습니다. */
+      top: 20px;
       right: 20px;
       padding: 10px 15px;
       background: #0d6efd;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+      z-index: 10000;
+    }
+    /* 학습 통계 보기 버튼 (추가) */
+    #stats-btn {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      padding: 10px 15px;
+      background: #28a745;
       color: #fff;
       border: none;
       border-radius: 5px;
@@ -454,6 +468,8 @@
   </script>
   
   <button id="identity-button" onclick="netlifyIdentity.open()">로그인 / 회원가입</button>
+  <!-- 학습 통계 보기 버튼 (추가) -->
+  <button id="stats-btn">학습 통계 보기</button>
   
   <div id="main-header">정수시설운영관리사 CBT</div>
   
@@ -521,6 +537,7 @@
   </div>
   
   <script>
+    // 로그인 상태 업데이트 함수
     function updateIdentityButton() {
       const identityButton = document.getElementById("identity-button");
       const user = netlifyIdentity.currentUser();
@@ -585,6 +602,7 @@
     const mainHeader = document.getElementById("main-header");
     const subjectSummary = document.getElementById("subject-summary");
     
+    // 애니메이션 효과 (회차 선택 안내)
     function animateSessionInstruction() {
       const instruction = document.getElementById("session-instruction");
       const text = instruction.textContent;
@@ -599,6 +617,7 @@
     }
     window.addEventListener("load", animateSessionInstruction);
     
+    // 모드 선택 시 로그인 확인 후 화면 전환
     practiceModeBtn.addEventListener("click", function() {
       if (!netlifyIdentity.currentUser()) {
         alert("문제를 풀기 위해서는 로그인이 필요합니다.");
@@ -722,7 +741,6 @@
             btn.classList.add("selected");
           }
           btn.addEventListener("click", function() {
-            console.log("버튼 클릭 - 현재 문제:", currentQuestionIndex, "선택한 인덱스:", idx);
             if (currentMode === "practice") {
               if (userAnswers[index] !== null) return;
               userAnswers[index] = idx;
@@ -780,25 +798,37 @@
     }
     
     prevBtn.addEventListener("click", function() {
-      console.log("이전 버튼 클릭, 현재 문제 인덱스:", currentQuestionIndex);
       if (currentQuestionIndex > 0) {
         showQuestion(currentQuestionIndex - 1);
       }
     });
     nextBtn.addEventListener("click", function() {
-      console.log("다음 버튼 클릭, 현재 문제 인덱스:", currentQuestionIndex);
       if (currentQuestionIndex < questions.length - 1) {
         showQuestion(currentQuestionIndex + 1);
       }
     });
     
+    // 로컬 스토리지에 퀴즈 결과 저장 (학습 기록 기능 1번)
+    function saveQuizResult(score, total, wrongBySubject, correctBySubject) {
+      const quizRecord = {
+        date: new Date().toISOString(),
+        session: currentSession,
+        score: score,
+        total: total,
+        wrongBySubject: wrongBySubject,
+        correctBySubject: correctBySubject
+      };
+      const existingResults = localStorage.getItem('cbtQuizResults');
+      let resultsArray = existingResults ? JSON.parse(existingResults) : [];
+      resultsArray.push(quizRecord);
+      localStorage.setItem('cbtQuizResults', JSON.stringify(resultsArray));
+    }
+    
+    // 채점 후 결과 처리 및 모달 표시 (기존 submitBtn 핸들러 수정)
     submitBtn.addEventListener("click", function() {
-      // 채점 결과 모달이 뜨기 전에 이전/다음 버튼 및 네비게이션 패널 숨김
       prevBtn.style.visibility = "hidden";
       nextBtn.style.visibility = "hidden";
       rightPanel.style.display = "none";
-      
-      // 모달 열릴 때 body에 modal-open 클래스를 추가하여 로그아웃 버튼 숨김
       document.body.classList.add("modal-open");
       
       let score = 0;
@@ -866,6 +896,9 @@
         }
       });
       
+      // 로컬에 학습 기록 저장 (기능 1번)
+      saveQuizResult(score, questions.length, wrongBySubject, correctBySubject);
+      
       modalSessionName.textContent = currentSession;
       modalContent.innerHTML = resultHTML;
       modalOverlay.style.display = "flex";
@@ -877,7 +910,6 @@
         prevBtn.style.visibility = "visible";
         nextBtn.style.visibility = "visible";
         rightPanel.style.display = "block";
-        // 모달이 닫힐 때 body에서 modal-open 클래스를 제거하여 로그아웃 버튼 다시 보임
         document.body.classList.remove("modal-open");
       }
     }
@@ -907,7 +939,50 @@
     }
     goBackBtn.addEventListener("click", goToSessionSelection);
     
-    createSessionButtons();
+    // 학습 통계 보기 기능 (기능 2번)
+    function showDetailedStatistics() {
+      const results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
+      let statsHTML = '<h2>학습 기록</h2>';
+      if (results.length === 0) {
+        statsHTML += '<p>저장된 결과가 없습니다.</p>';
+      } else {
+        results.forEach((result, index) => {
+          statsHTML += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:10px;">
+            <h3>시도 ${index + 1} (${new Date(result.date).toLocaleString()})</h3>
+            <p>회차: ${result.session}</p>
+            <p>점수: ${result.score} / ${result.total}</p>
+            <table style="width:100%; border-collapse: collapse;">
+              <tr>
+                <th style="border: 1px solid #ddd; padding: 8px;">과목</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">오답 수</th>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">1과목 수처리공정</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["1과목 수처리공정"] ? result.wrongBySubject["1과목 수처리공정"].length : 0}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">2과목 수질분석 및 관리</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["2과목 수질분석 및 관리"] ? result.wrongBySubject["2과목 수질분석 및 관리"].length : 0}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">3과목 설비운영(기계ㆍ장치 또는 계측기 등)</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"] ? result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"].length : 0}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">4과목 정수시설 수리학</td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["4과목 정수시설 수리학"] ? result.wrongBySubject["4과목 정수시설 수리학"].length : 0}</td>
+              </tr>
+            </table>
+          </div>`;
+        });
+      }
+      modalContent.innerHTML = statsHTML;
+      modalSessionName.textContent = "학습 통계";
+      modalOverlay.style.display = "flex";
+    }
+    
+    // 학습 통계 보기 버튼 이벤트 등록 (추가)
+    document.getElementById('stats-btn').addEventListener('click', showDetailedStatistics);
     
     function processOptions(options) {
       let newOptions = [];
