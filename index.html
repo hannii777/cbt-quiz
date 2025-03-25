@@ -28,7 +28,7 @@
       50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
       100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
     }
-    /* 상단 버튼들 (수정됨) */
+    /* 상단 버튼들 */
     #identity-button {
       position: fixed;
       top: 20px;
@@ -42,11 +42,11 @@
       font-size: 1em;
       z-index: 10000;
     }
-    /* 학습 통계 버튼은 로그인 버튼의 왼쪽, 오른쪽 140px 위치 */
+    /* 학습 통계 버튼 – 항상 보이고, 로그아웃 버튼 바로 아래 (top:60px) */
     #stats-btn {
       position: fixed;
-      top: 20px;
-      right: 140px;
+      top: 60px;
+      right: 20px;
       padding: 10px 15px;
       background: #28a745;
       color: #fff;
@@ -216,7 +216,7 @@
       z-index: 1100;
     }
     #back-screen-btn:hover, #back-to-mode-btn:hover { background: #5b636a; }
-    /* 오른쪽 패널 */
+    /* 오른쪽 패널 (네비게이션 및 채점하기 버튼) */
     #right-panel {
       position: fixed;
       top: 120px;
@@ -509,7 +509,6 @@
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
       rightPanel.style.display = "none";
-      document.getElementById('stats-btn').style.display = "none";
     });
     examModeBtn.addEventListener("click", function() {
       if(!netlifyIdentity.currentUser()) {
@@ -521,17 +520,15 @@
       modeContainer.style.display = "none";
       sessionContainer.style.display = "block";
       rightPanel.style.display = "none";
-      document.getElementById('stats-btn').style.display = "none";
     });
     
     backToModeBtn.addEventListener("click", function() {
       sessionContainer.style.display = "none";
-      modeContainer.style.display = "block"; /* 원래 디스플레이가 block이어야 함 */
-      modeContainer.style.flexDirection = ""; /* flex 관련 속성 제거 */
+      modeContainer.style.display = "block";
+      modeContainer.style.flexDirection = "";
       modeContainer.style.justifyContent = "";
       rightPanel.style.display = "none";
       navTable.innerHTML = "";
-      document.getElementById('stats-btn').style.display = "block";
     });
     
     backScreenBtn.addEventListener("click", function() {
@@ -554,7 +551,6 @@
       userAnswers = [];
       currentSession = "";
       document.body.classList.remove("modal-open");
-      document.getElementById('stats-btn').style.display = "block";
     }
     goBackBtnResult.addEventListener("click", goToModeSelection);
     goBackBtnStats.addEventListener("click", goToModeSelection);
@@ -734,7 +730,6 @@
       let resultHTML = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>` + summaryHTML;
       resultModalContent.innerHTML = resultHTML;
       document.getElementById("result-modal-overlay").style.display = "flex";
-      
       const subjectEls = document.querySelectorAll(".subject-click-result");
       subjectEls.forEach(el => {
         el.addEventListener("click", function() {
@@ -760,7 +755,9 @@
           </li>`;
         });
         detailsHTML += `</ul>`;
-      } else { detailsHTML += `<p style="text-align:left;">틀린 문제 없음</p>`; }
+      } else {
+        detailsHTML += `<p style="text-align:left;">틀린 문제 없음</p>`;
+      }
       resultModalContent.innerHTML = detailsHTML;
       document.getElementById("result-back-to-summary-btn").addEventListener("click", function() {
         let summaryHTML = `<table style="width:100%; border-collapse: collapse;">
@@ -887,9 +884,7 @@
           </li>`;
         });
         detailsHTML += `</ul>`;
-      } else {
-        detailsHTML += `<p style="text-align:left;">틀린 문제 없음</p>`;
-      }
+      } else { detailsHTML += `<p style="text-align:left;">틀린 문제 없음</p>`; }
       statsModalContent.innerHTML = detailsHTML;
       document.getElementById("stats-back-to-summary-btn").addEventListener("click", showStatsModal);
     }
@@ -927,7 +922,6 @@
       userAnswers = [];
       currentSession = "";
       document.body.classList.remove("modal-open");
-      document.getElementById('stats-btn').style.display = "block";
     }
     goBackBtnResult.addEventListener("click", goToModeSelection);
     goBackBtnStats.addEventListener("click", goToModeSelection);
