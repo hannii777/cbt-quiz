@@ -58,7 +58,7 @@
       font-size: 1em;
       z-index: 10000;
     }
-    /* 학습 통계 보기 버튼 (추가) */
+    /* 학습 통계 보기 버튼 */
     #stats-btn {
       position: fixed;
       top: 70px;
@@ -100,7 +100,7 @@
     #mode-container ul li {
       margin-bottom: 10px;
     }
-    /* 모드 선택 버튼 영역 – 원래 그대로 */
+    /* 모드 선택 버튼 영역 */
     #mode-buttons {
       display: flex;
       justify-content: space-between;
@@ -122,7 +122,7 @@
       background: #0b5ed7;
       transform: scale(1.05);
     }
-    /* 회차 선택 컨테이너 – 원래 그대로 */
+    /* 회차 선택 컨테이너 */
     #session-container {
       max-width: 800px;
       margin: 20px auto;
@@ -162,7 +162,7 @@
       background: #0b5ed7;
       transform: scale(1.03);
     }
-    /* CBT 퀴즈 컨테이너 – 원래 고정된 크기 사용 */
+    /* CBT 퀴즈 컨테이너 */
     #quiz-container {
       position: relative;
       width: 800px !important;
@@ -246,7 +246,7 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    /* 이전/다음 버튼 – 원래 quiz 컨테이너 내부 하단에 위치 */
+    /* 이전/다음 버튼 */
     #prev-btn, #next-btn {
       position: absolute;
       padding: 10px 20px;
@@ -264,7 +264,7 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    /* “이전화면” 버튼 – 원래 위치와 디자인 그대로 */
+    /* “이전화면” 버튼 */
     #back-screen-btn, #back-to-mode-btn {
       position: fixed;
       top: 20px;
@@ -281,7 +281,7 @@
     #back-screen-btn:hover, #back-to-mode-btn:hover {
       background: #5b636a;
     }
-    /* 오른쪽 고정 패널 – 수정: top 값을 120px로 변경 */
+    /* 오른쪽 고정 패널 – top값을 120px로 조정 */
     #right-panel {
       position: fixed;
       top: 120px;
@@ -333,7 +333,7 @@
     #submit-btn:hover {
       background: #0b5ed7;
     }
-    /* 채점 결과 모달창 – 원래 디자인 그대로 (오답수 박스 제거) */
+    /* 채점 결과 모달창 (오답수 박스 제거) */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -443,7 +443,7 @@
   </script>
   
   <button id="identity-button" onclick="netlifyIdentity.open()">로그인 / 회원가입</button>
-  <!-- 학습 통계 보기 버튼 (위치 조정으로 네비게이션과 겹치지 않음) -->
+  <!-- 학습 통계 보기 버튼 -->
   <button id="stats-btn">학습 통계 보기</button>
   
   <div id="main-header">정수시설운영관리사 CBT</div>
@@ -494,7 +494,7 @@
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
-  <!-- 모달창: 오답수 박스 제거 -->
+  <!-- 모달창 (요약/상세보기 모두 표시) -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
@@ -902,10 +902,10 @@
     }
     goBackBtn.addEventListener("click", goToSessionSelection);
     
-    // 학습 통계 보기 기능
+    // 학습 통계 보기 기능 (요약 + 과목별 상세보기)
     function showDetailedStatistics() {
       const results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
-      let statsHTML = '<h2>학습 기록</h2>';
+      let statsHTML = '<h2>학습 기록 요약</h2>';
       if (results.length === 0) {
         statsHTML += '<p>저장된 결과가 없습니다.</p>';
       } else {
@@ -913,34 +913,85 @@
           statsHTML += `<div style="margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px;">
             <h3>시도 ${index + 1} (${new Date(result.date).toLocaleString()})</h3>
             <p>회차: ${result.session}</p>
-            <p>점수: ${result.score} / ${result.total}</p>`;
-          subjects = ["1과목 수처리공정", "2과목 수질분석 및 관리", "3과목 설비운영(기계ㆍ장치 또는 계측기 등)", "4과목 정수시설 수리학"];
-          subjects.forEach(subj => {
-            const wrongList = result.wrongBySubject[subj] || [];
-            statsHTML += `<h4>${subj} (오답 ${wrongList.length}문제)</h4>`;
-            if (wrongList.length > 0) {
-              statsHTML += `<ul style="margin-left:20px;">`;
-              wrongList.forEach(item => {
-                statsHTML += `<li>
-                  <strong>문제 ${item.id}:</strong> ${item.question}<br>
-                  <em>내 선택:</em> ${item.selected} | <em>정답:</em> ${item.correct}
-                </li>`;
-              });
-              statsHTML += `</ul>`;
-            } else {
-              statsHTML += `<p>틀린 문제 없음</p>`;
-            }
-          });
-          statsHTML += `</div>`;
+            <p>점수: ${result.score} / ${result.total}</p>
+            <table style="width:100%; border-collapse: collapse;">
+              <tr>
+                <th style="border: 1px solid #ddd; padding: 8px;">과목</th>
+                <th style="border: 1px solid #ddd; padding: 8px;">오답 수</th>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">
+                  <span class="subject-click" data-session-index="${index}" data-subject="1과목 수처리공정" style="cursor:pointer; color:blue; text-decoration:underline;">
+                    1과목 수처리공정
+                  </span>
+                </td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["1과목 수처리공정"] ? result.wrongBySubject["1과목 수처리공정"].length : 0}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">
+                  <span class="subject-click" data-session-index="${index}" data-subject="2과목 수질분석 및 관리" style="cursor:pointer; color:blue; text-decoration:underline;">
+                    2과목 수질분석 및 관리
+                  </span>
+                </td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["2과목 수질분석 및 관리"] ? result.wrongBySubject["2과목 수질분석 및 관리"].length : 0}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">
+                  <span class="subject-click" data-session-index="${index}" data-subject="3과목 설비운영(기계ㆍ장치 또는 계측기 등)" style="cursor:pointer; color:blue; text-decoration:underline;">
+                    3과목 설비운영(기계ㆍ장치 또는 계측기 등)
+                  </span>
+                </td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"] ? result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"].length : 0}</td>
+              </tr>
+              <tr>
+                <td style="border: 1px solid #ddd; padding: 8px;">
+                  <span class="subject-click" data-session-index="${index}" data-subject="4과목 정수시설 수리학" style="cursor:pointer; color:blue; text-decoration:underline;">
+                    4과목 정수시설 수리학
+                  </span>
+                </td>
+                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["4과목 정수시설 수리학"] ? result.wrongBySubject["4과목 정수시설 수리학"].length : 0}</td>
+              </tr>
+            </table>
+          </div>`;
         });
       }
       modalContent.innerHTML = statsHTML;
       modalSessionName.textContent = "학습 통계";
       modalOverlay.style.display = "flex";
+
+      // 각 과목 클릭 이벤트 등록
+      const subjectElements = document.querySelectorAll('.subject-click');
+      subjectElements.forEach(el => {
+        el.addEventListener('click', function() {
+          const sessionIndex = this.getAttribute('data-session-index');
+          const subject = this.getAttribute('data-subject');
+          showSubjectDetails(sessionIndex, subject);
+        });
+      });
     }
     
-    // 학습 통계 보기 버튼 이벤트 등록
-    document.getElementById('stats-btn').addEventListener('click', showDetailedStatistics);
+    // 상세 내역 보기 함수 (과목별)
+    function showSubjectDetails(sessionIndex, subject) {
+      const results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
+      const result = results[sessionIndex];
+      let detailsHTML = `<h2>${subject} 상세 내역 (시도 ${parseInt(sessionIndex) + 1})</h2>`;
+      const wrongList = result.wrongBySubject[subject] || [];
+      if(wrongList.length > 0) {
+        detailsHTML += `<ul style="margin-left:20px;">`;
+        wrongList.forEach(item => {
+          detailsHTML += `<li style="margin-bottom:8px;">
+            <strong>문제 ${item.id}:</strong> ${item.question}<br>
+            <em>내 선택:</em> ${item.selected} | <em>정답:</em> ${item.correct}
+          </li>`;
+        });
+        detailsHTML += `</ul>`;
+      } else {
+        detailsHTML += `<p>틀린 문제 없음</p>`;
+      }
+      detailsHTML += `<button id="back-to-summary-btn" style="margin-top:15px; padding:8px 12px; background:#0d6efd; color:#fff; border:none; border-radius:6px; cursor:pointer;">요약으로 돌아가기</button>`;
+      modalContent.innerHTML = detailsHTML;
+      document.getElementById('back-to-summary-btn').addEventListener('click', showDetailedStatistics);
+    }
     
     function processOptions(options) {
       let newOptions = [];
