@@ -4,12 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>정수시설운영관리사 CBT</title>
-  <!-- 구글 폰트 (Montserrat) 추가 -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <!-- Netlify Identity 위젯 로드 -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
-    /* 전체 배경 및 기본 스타일 */
     body {
       font-family: 'Montserrat', sans-serif;
       margin: 0;
@@ -28,23 +25,15 @@
       50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
       100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
     }
-    /* 모달창 시 body에 modal-open 클래스가 있으면 로그아웃 버튼 숨김 */
-    .modal-open #identity-button {
-      display: none !important;
-    }
-    /* 상단 헤더 – 기존 스타일 유지 */
     #main-header {
-      position: absolute;
-      top: 150px;
-      left: 50%;
-      transform: translateX(-50%);
+      margin-top: 150px;
       font-size: 28px;
       font-weight: 700;
       color: #0d6efd;
       text-align: center;
       cursor: default;
     }
-    /* 오른쪽 하단에 로그인/회원가입 (또는 로그아웃) 버튼 */
+    /* 로그아웃 버튼은 항상 화면 오른쪽 하단에 위치 */
     #identity-button {
       position: fixed;
       bottom: 20px;
@@ -86,7 +75,6 @@
     #mode-container ul li {
       margin-bottom: 10px;
     }
-    /* 모드 선택 버튼 영역 */
     #mode-buttons {
       display: flex;
       justify-content: space-between;
@@ -108,14 +96,12 @@
       background: #0b5ed7;
       transform: scale(1.05);
     }
-    /* 회차 선택 컨테이너 */
     #session-container {
       max-width: 800px;
       margin: 20px auto;
       text-align: center;
       display: none;
     }
-    /* 회차 선택 안내 문구 스타일 */
     #session-instruction {
       font-size: 1.3em;
       font-weight: bold;
@@ -126,12 +112,11 @@
       padding-left: 20px;
       word-spacing: 0.5em;
     }
-    /* 회차 선택 버튼 영역: 그리드 레이아웃, 한 행에 6개씩 배열 */
     #session-selection {
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 15px;
-      background: #ffffff;
+      background: #fff;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -150,21 +135,16 @@
       background: #0b5ed7;
       transform: scale(1.03);
     }
-    /* CBT 퀴즈 컨테이너 */
+    /* Quiz 컨테이너는 높이를 auto로 처리하여 내용에 따라 늘어납니다 */
     #quiz-container {
-      position: relative;
-      width: 800px !important;
-      min-height: 600px;
-      margin: 20px auto;
+      width: 800px;
       background: #fff;
       padding: 40px;
       box-sizing: border-box;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       display: none;
-      overflow-y: auto;
-      overflow-x: hidden;
-      flex-shrink: 0;
+      margin-bottom: 20px;
     }
     #session-name {
       font-size: 20px;
@@ -192,15 +172,13 @@
       color: #555;
       margin-bottom: 10px;
     }
-    /* 답안 영역 아래쪽에 충분한 여백 추가 */
     #question-area {
-      padding-bottom: 150px;
+      margin-bottom: 20px;
     }
     .details p {
       margin-top: 6px;
       white-space: pre-line;
     }
-    /* 선택지 영역: 2컬럼 그리드 */
     .options {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -232,17 +210,16 @@
       background: #ffeb99;
       border-color: #f0a500;
     }
-    /* 피드백 영역 */
     #feedback {
       margin-top: 10px;
       font-weight: bold;
     }
-    /* 내비게이션 버튼 영역 (quiz-container 외부) */
+    /* 내비게이션 버튼은 quiz 컨테이너 아래에 배치 */
     #navigation-buttons {
+      width: 800px;
+      margin: 0 auto 20px auto;
       display: flex;
       justify-content: space-between;
-      width: 800px;
-      margin: 10px auto 20px auto;
     }
     #navigation-buttons button {
       padding: 10px 20px;
@@ -257,7 +234,7 @@
       background: #ccc;
       cursor: not-allowed;
     }
-    /* 오른쪽 고정 패널 */
+    /* 오른쪽 패널 */
     #right-panel {
       position: fixed;
       top: 70px;
@@ -309,7 +286,7 @@
     #submit-btn:hover {
       background: #0b5ed7;
     }
-    /* 모달창 스타일 */
+    /* 모달 스타일 */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -323,7 +300,6 @@
       z-index: 20000;
     }
     #modal {
-      position: relative;
       background: #fff;
       padding: 20px;
       border-radius: 8px;
@@ -332,13 +308,12 @@
       max-height: 90vh;
       overflow-y: auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      position: relative;
     }
     #modal h2 {
       margin-top: 0;
-      text-align: left;
-      position: relative;
-      padding-right: 30px;
       font-size: 1.25rem;
+      padding-right: 30px;
     }
     #modal h2 small {
       display: block;
@@ -353,7 +328,6 @@
       background: transparent;
       border: none;
       font-size: 24px;
-      line-height: 1;
       cursor: pointer;
       color: #333;
     }
@@ -380,7 +354,6 @@
     #go-back-btn:hover {
       background: #218838;
     }
-    /* 과목별 요약 표 (모달 오른쪽 상단) */
     #subject-summary {
       position: absolute;
       top: 20px;
@@ -404,6 +377,9 @@
       background: #e9ecef;
     }
     @media (max-width: 768px) {
+      #quiz-container, #navigation-buttons {
+        width: 90%;
+      }
       .question {
         font-size: 1.1em;
         padding-left: 0.8em;
@@ -414,14 +390,10 @@
         padding-left: 1.6em;
         text-indent: -1.6em;
       }
-      #navigation-buttons {
-        width: 90%;
-      }
       #subject-summary {
         font-size: 0.8em;
       }
     }
-    /* 파도타기 애니메이션 */
     .wave span {
       display: inline-block;
       animation: waveAnim 3s ease-in-out infinite;
@@ -435,21 +407,12 @@
   </style>
 </head>
 <body>
-  <!-- Netlify Identity 초기화 -->
-  <script>
-    netlifyIdentity.init();
-  </script>
+  <script> netlifyIdentity.init(); </script>
   
-  <!-- 로그인/회원가입 또는 회원정보(로그아웃) 버튼 -->
   <button id="identity-button" onclick="netlifyIdentity.open()">로그인 / 회원가입</button>
   
   <div id="main-header">정수시설운영관리사 CBT</div>
   
-  <!-- 애니메이션 아이콘 예시 -->
-  <div id="left-icon" class="animated-icon"></div>
-  <div id="right-icon" class="animated-icon"></div>
-  
-  <!-- 모드 선택 화면 -->
   <div id="mode-container">
     <p>
       정수시설운영관리사 CBT에 오신 것을 진심으로 환영합니다!<br>
@@ -465,7 +428,6 @@
     </div>
   </div>
   
-  <!-- 회차 선택 화면 -->
   <div id="session-container" style="display: none;">
     <button id="back-to-mode-btn">모드 선택 (이전화면)</button>
     <p id="session-instruction">
@@ -474,7 +436,6 @@
     <div id="session-selection"></div>
   </div>
   
-  <!-- CBT 퀴즈 컨테이너 -->
   <div id="quiz-container" style="display: none;">
     <button id="back-screen-btn">이전화면</button>
     <div id="session-name"></div>
@@ -488,7 +449,6 @@
     </div>
   </div>
   
-  <!-- 내비게이션 버튼 (quiz-container 외부) -->
   <div id="navigation-buttons" style="display: none;">
     <button id="prev-btn">이전 문제</button>
     <button id="next-btn">다음 문제</button>
@@ -499,7 +459,6 @@
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
-  <!-- 채점 결과 모달 -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
@@ -517,7 +476,6 @@
     </div>
   </div>
   
-  <!-- CBT 관련 스크립트 -->
   <script>
     // 로그인 상태에 따라 버튼 업데이트
     function updateIdentityButton() {
@@ -526,27 +484,16 @@
       if (user) {
         const displayName = user.user_metadata.full_name || user.email;
         identityButton.textContent = displayName + " (로그아웃)";
-        identityButton.onclick = function() {
-          netlifyIdentity.logout();
-        };
+        identityButton.onclick = () => { netlifyIdentity.logout(); };
       } else {
         identityButton.textContent = "로그인 / 회원가입";
-        identityButton.onclick = function() {
-          netlifyIdentity.open();
-        };
+        identityButton.onclick = () => { netlifyIdentity.open(); };
       }
     }
-    
-    netlifyIdentity.on('login', user => {
-      updateIdentityButton();
-      netlifyIdentity.close();
-    });
-    netlifyIdentity.on('logout', () => {
-      updateIdentityButton();
-    });
+    netlifyIdentity.on('login', user => { updateIdentityButton(); netlifyIdentity.close(); });
+    netlifyIdentity.on('logout', () => { updateIdentityButton(); });
     document.addEventListener("DOMContentLoaded", updateIdentityButton);
     
-    // CBT 관련 변수 및 요소
     let questions = [];
     let currentQuestionIndex = 0;
     let userAnswers = [];
@@ -587,7 +534,6 @@
     const subjectSummary = document.getElementById("subject-summary");
     const navigationButtons = document.getElementById("navigation-buttons");
     
-    // 회차 선택 안내 애니메이션
     function animateSessionInstruction() {
       const instruction = document.getElementById("session-instruction");
       const text = instruction.textContent;
@@ -602,7 +548,6 @@
     }
     window.addEventListener("load", animateSessionInstruction);
     
-    // 모드 선택 시 로그인 확인
     practiceModeBtn.addEventListener("click", function() {
       if (!netlifyIdentity.currentUser()) {
         alert("문제를 풀기 위해서는 로그인이 필요합니다.");
@@ -693,12 +638,10 @@
       try {
         questionText.textContent = q.question;
         updateSubjectHeader();
-        
         let processedOptions = processOptions(q.options);
         selectedDisplay.textContent = (userAnswers[index] !== null) ?
             "선택한 답: " + processedOptions[userAnswers[index]] :
             "선택한 답: 없음";
-        
         detailsDiv.innerHTML = "";
         if (q.details && q.details.length > 0) {
           q.details.forEach(detail => {
@@ -712,7 +655,6 @@
             });
           });
         }
-        
         optionsDiv.innerHTML = "";
         feedbackDiv.textContent = "";
         processedOptions.forEach((option, idx) => {
@@ -725,9 +667,7 @@
           } else {
             btn.classList.add("short-option");
           }
-          if (userAnswers[index] === idx) {
-            btn.classList.add("selected");
-          }
+          if (userAnswers[index] === idx) { btn.classList.add("selected"); }
           btn.addEventListener("click", function() {
             if (currentMode === "practice") {
               if (userAnswers[index] !== null) return;
@@ -775,34 +715,24 @@
         } else {
           btn.style.background = "#f0f0f0";
         }
-        if (i === currentQuestionIndex) {
-          btn.classList.add("current");
-        }
-        btn.addEventListener("click", function() {
-          showQuestion(i);
-        });
+        if (i === currentQuestionIndex) { btn.classList.add("current"); }
+        btn.addEventListener("click", function() { showQuestion(i); });
         navTable.appendChild(btn);
       }
     }
     
-    // 이전/다음 버튼 이벤트
     prevBtn.addEventListener("click", function() {
-      if (currentQuestionIndex > 0) {
-        showQuestion(currentQuestionIndex - 1);
-      }
+      if (currentQuestionIndex > 0) { showQuestion(currentQuestionIndex - 1); }
     });
     nextBtn.addEventListener("click", function() {
-      if (currentQuestionIndex < questions.length - 1) {
-        showQuestion(currentQuestionIndex + 1);
-      }
+      if (currentQuestionIndex < questions.length - 1) { showQuestion(currentQuestionIndex + 1); }
     });
     
     submitBtn.addEventListener("click", function() {
-      // 채점 결과 모달을 열기 전에 내비게이션 및 오른쪽 패널 숨김
       navigationButtons.style.display = "none";
       rightPanel.style.display = "none";
-      // 모달 열릴 때 body에 클래스 추가하여 로그아웃 버튼 숨김
-      document.body.classList.add("modal-open");
+      // 모달창 열릴 때 로그아웃 버튼을 감춤
+      document.getElementById("identity-button").style.visibility = "hidden";
       
       let score = 0;
       const wrongBySubject = {
@@ -879,7 +809,8 @@
         modalOverlay.style.display = "none";
         navigationButtons.style.display = "flex";
         rightPanel.style.display = "block";
-        document.body.classList.remove("modal-open");
+        // 모달 닫힐 때 로그아웃 버튼 다시 보임
+        document.getElementById("identity-button").style.visibility = "visible";
       }
     }
     
