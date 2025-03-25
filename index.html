@@ -28,7 +28,7 @@
       50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
       100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
     }
-    /* 로그인 및 학습 통계 버튼 */
+    /* 상단 버튼들 */
     #identity-button, #stats-btn {
       position: fixed;
       right: 20px;
@@ -40,6 +40,7 @@
       z-index: 10000;
     }
     #identity-button { top: 20px; background: #0d6efd; color: #fff; }
+    /* 학습 통계 버튼 문구 변경 → "학습 통계" */
     #stats-btn { top: 70px; background: #28a745; color: #fff; }
     /* 상단 헤더 */
     #main-header {
@@ -53,7 +54,7 @@
       text-align: center;
       cursor: default;
     }
-    /* 모드 선택 컨테이너 */
+    /* 모드 선택 화면 */
     #mode-container {
       background: rgba(255,255,255,0.98);
       border-radius: 15px;
@@ -80,7 +81,7 @@
       transition: transform 0.2s, background 0.2s;
     }
     #mode-buttons button:hover { background: #0b5ed7; transform: scale(1.05); }
-    /* 회차 선택 컨테이너 */
+    /* 회차 선택 화면 */
     #session-container {
       max-width: 800px;
       margin: 20px auto;
@@ -117,7 +118,7 @@
       transition: background 0.2s, transform 0.2s;
     }
     #session-selection button:hover { background: #0b5ed7; transform: scale(1.03); }
-    /* 퀴즈 컨테이너 */
+    /* 퀴즈 화면 */
     #quiz-container {
       position: relative;
       width: 800px !important;
@@ -135,24 +136,11 @@
     }
     #session-name { font-size: 20px; font-weight: 500; margin-bottom: 10px; text-align: center; color: #0d6efd; }
     #subject-header { font-size: 18px; font-weight: 500; margin-bottom: 10px; color: #0d6efd; }
-    .question {
-      font-size: 1.2em;
-      margin-bottom: 20px;
-      padding-left: 1em;
-      text-indent: -1em;
-      word-break: keep-all;
-      overflow-wrap: break-word;
-    }
+    .question { font-size: 1.2em; margin-bottom: 20px; padding-left: 1em; text-indent: -1em; word-break: keep-all; overflow-wrap: break-word; }
     #selected-display { font-size: 1.1em; color: #555; margin-bottom: 10px; }
     #question-area { padding-bottom: 80px; }
     .details p { margin-top: 6px; white-space: pre-line; }
-    .options {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      max-width: 600px;
-      margin-bottom: 20px;
-    }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 600px; margin-bottom: 20px; }
     .option-btn {
       width: 100%;
       white-space: normal;
@@ -203,7 +191,7 @@
       z-index: 1100;
     }
     #back-screen-btn:hover, #back-to-mode-btn:hover { background: #5b636a; }
-    /* 오른쪽 고정 패널 */
+    /* 오른쪽 패널 (숫자 네비게이션 및 채점하기 버튼) */
     #right-panel {
       position: fixed;
       top: 120px;
@@ -272,7 +260,7 @@
       overflow-y: auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    /* 모달 헤더 */
+    /* 모달 헤더 (채점 결과/학습 통계) */
     #result-modal-header, #stats-modal-header {
       margin: 0;
       display: flex;
@@ -307,6 +295,7 @@
       transition: background 0.2s;
     }
     #result-modal button:hover, #stats-modal button:hover { background: #0b5ed7; }
+    /* "모드선택" 버튼 */
     #result-go-back-btn, #stats-go-back-btn {
       background: #28a745;
     }
@@ -317,16 +306,8 @@
       #prev-btn, #next-btn { padding: 8px 12px; }
       #quiz-container { width: 800px; height: 600px; overflow-y: auto; overflow-x: hidden; }
     }
-    .wave span {
-      display: inline-block;
-      animation: waveAnim 3s ease-in-out infinite;
-    }
-    @keyframes waveAnim {
-      0% { transform: translateX(0); }
-      10% { transform: translateX(5px); }
-      20% { transform: translateX(0); }
-      100% { transform: translateX(0); }
-    }
+    .wave span { display: inline-block; animation: waveAnim 3s ease-in-out infinite; }
+    @keyframes waveAnim { 0% { transform: translateX(0); } 10% { transform: translateX(5px); } 20% { transform: translateX(0); } 100% { transform: translateX(0); } }
   </style>
 </head>
 <body>
@@ -358,7 +339,7 @@
   </div>
   
   <!-- 회차 선택 화면 -->
-  <div id="session-container" style="display: none;">
+  <div id="session-container" style="display:none;">
     <button id="back-to-mode-btn">모드 선택 (이전화면)</button>
     <p id="session-instruction">
       오늘 공부할 회차를 선택해 주세요. 여러분의 열정을 응원합니다!
@@ -367,7 +348,7 @@
   </div>
   
   <!-- 퀴즈 화면 -->
-  <div id="quiz-container" style="display: none;">
+  <div id="quiz-container" style="display:none;">
     <button id="back-screen-btn">이전화면</button>
     <div id="session-name"></div>
     <div id="subject-header"></div>
@@ -383,7 +364,7 @@
   </div>
   
   <!-- 오른쪽 패널 (숫자 네비게이션 및 채점하기 버튼) -->
-  <div id="right-panel" style="display: none;">
+  <div id="right-panel" style="display:none;">
     <div id="nav-table"></div>
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
@@ -391,7 +372,7 @@
   <!-- 채점 결과 모달 -->
   <div id="result-modal-overlay">
     <div id="result-modal">
-      <h2 id="result-modal-header">채점 결과 <span class="esc">(ESC를 누르시면 창을 종료할 수 있습니다!!)</span> <button class="close-x" id="result-modal-close">&times;</button></h2>
+      <h2 id="result-modal-header"></h2>
       <div id="result-modal-content"></div>
       <div class="modal-buttons">
         <button id="result-close-modal">닫기</button>
@@ -403,7 +384,7 @@
   <!-- 학습 통계 모달 -->
   <div id="stats-modal-overlay">
     <div id="stats-modal">
-      <h2 id="stats-modal-header">학습 기록 요약 <span class="esc">(ESC를 누르시면 창을 종료할 수 있습니다!!)</span> <button class="close-x" id="stats-modal-close">&times;</button></h2>
+      <h2 id="stats-modal-header"></h2>
       <div id="stats-modal-content"></div>
       <div class="modal-buttons">
         <button id="stats-close-modal">닫기</button>
@@ -413,7 +394,10 @@
   </div>
   
   <script>
-    /* 모달 헤더 설정 함수 */
+    /* 전역 변수 (채점 결과 데이터를 저장) */
+    let latestResult = null;
+    
+    // 모달 헤더 설정 함수
     function setModalHeader(modalId, titleText) {
       const headerEl = document.getElementById(modalId + "-header");
       headerEl.innerHTML = titleText + " <span class='esc'>(ESC를 누르시면 창을 종료할 수 있습니다!!)</span> <button class='close-x' id='" + modalId + "-close'>&times;</button>";
@@ -424,37 +408,26 @@
     
     function closeModal(modalId) {
       document.getElementById(modalId + "-overlay").style.display = "none";
-      // 채점 결과 모달 닫힘 시 오른쪽 패널도 숨김
-      if(modalId === "result-modal") {
-        document.getElementById("right-panel").style.display = "none";
-      }
       document.body.classList.remove("modal-open");
+      // 채점 결과 모달 닫힘 시 오른쪽 패널 숨김
+      if(modalId === "result-modal") { document.getElementById("right-panel").style.display = "none"; }
     }
     
-    /* 로그인 상태 업데이트 */
+    // 로그인 상태 업데이트
     function updateIdentityButton() {
       const identityButton = document.getElementById("identity-button");
       const user = netlifyIdentity.currentUser();
-      if (user) {
+      if(user) {
         const displayName = user.user_metadata.full_name || user.email;
         identityButton.textContent = displayName + " (로그아웃)";
-        identityButton.onclick = function() {
-          netlifyIdentity.logout();
-        };
+        identityButton.onclick = function() { netlifyIdentity.logout(); };
       } else {
         identityButton.textContent = "로그인 / 회원가입";
-        identityButton.onclick = function() {
-          netlifyIdentity.open();
-        };
+        identityButton.onclick = function() { netlifyIdentity.open(); };
       }
     }
-    netlifyIdentity.on('login', user => {
-      updateIdentityButton();
-      netlifyIdentity.close();
-    });
-    netlifyIdentity.on('logout', () => {
-      updateIdentityButton();
-    });
+    netlifyIdentity.on('login', user => { updateIdentityButton(); netlifyIdentity.close(); });
+    netlifyIdentity.on('logout', () => { updateIdentityButton(); });
     document.addEventListener("DOMContentLoaded", function() {
       updateIdentityButton();
       createSessionButtons();
@@ -472,11 +445,9 @@
     const modeContainer = document.getElementById("mode-container");
     const practiceModeBtn = document.getElementById("practice-mode-btn");
     const examModeBtn = document.getElementById("exam-mode-btn");
-    
     const sessionContainer = document.getElementById("session-container");
     const sessionSelection = document.getElementById("session-selection");
     const backToModeBtn = document.getElementById("back-to-mode-btn");
-    
     const quizContainer = document.getElementById("quiz-container");
     const backScreenBtn = document.getElementById("back-screen-btn");
     const sessionNameDiv = document.getElementById("session-name");
@@ -486,13 +457,11 @@
     const detailsDiv = document.getElementById("details");
     const optionsDiv = document.getElementById("options");
     const feedbackDiv = document.getElementById("feedback");
-    
     const prevBtn = document.getElementById("prev-btn");
     const nextBtn = document.getElementById("next-btn");
     const navTable = document.getElementById("nav-table");
     const rightPanel = document.getElementById("right-panel");
     const submitBtn = document.getElementById("submit-btn");
-    
     const resultModalOverlay = document.getElementById("result-modal-overlay");
     const resultModalContent = document.getElementById("result-modal-content");
     const statsModalOverlay = document.getElementById("stats-modal-overlay");
@@ -501,17 +470,17 @@
     const goBackBtnStats = document.getElementById("stats-go-back-btn");
     const mainHeader = document.getElementById("main-header");
     
-    // ESC키 처리
+    // ESC 키 처리
     document.addEventListener("keydown", function(e) {
-      if (e.key === "Escape") {
+      if(e.key === "Escape") {
         if(resultModalOverlay.style.display === "flex") { closeModal("result-modal"); }
         if(statsModalOverlay.style.display === "flex") { closeModal("stats-modal"); }
       }
     });
     
-    /* 모드 및 세션 전환 */
+    // 모드 선택 시 화면 전환
     practiceModeBtn.addEventListener("click", function() {
-      if (!netlifyIdentity.currentUser()) {
+      if(!netlifyIdentity.currentUser()) {
         alert("문제를 풀기 위해서는 로그인이 필요합니다.");
         netlifyIdentity.open();
         return;
@@ -523,7 +492,7 @@
       document.getElementById('stats-btn').style.display = "none";
     });
     examModeBtn.addEventListener("click", function() {
-      if (!netlifyIdentity.currentUser()) {
+      if(!netlifyIdentity.currentUser()) {
         alert("문제를 풀기 위해서는 로그인이 필요합니다.");
         netlifyIdentity.open();
         return;
@@ -549,7 +518,7 @@
       goToModeSelection();
     });
     
-    // "모드선택" 화면으로 돌아가기 (회차선택 화면은 안 뜨게 함)
+    // "모드선택" 화면으로 전환 (회차 선택 화면은 뜨지 않음)
     function goToModeSelection() {
       resultModalOverlay.style.display = "none";
       statsModalOverlay.style.display = "none";
@@ -573,7 +542,7 @@
     
     function createSessionButtons() {
       sessionSelection.innerHTML = "";
-      for (let i = 20; i <= 36; i++) {
+      for(let i = 20; i <= 36; i++) {
         const btn = document.createElement("button");
         btn.textContent = `2급 - ${i}회`;
         btn.addEventListener("click", function() {
@@ -604,10 +573,10 @@
     }
     
     function getSubjectName(qid) {
-      if (qid >= 1 && qid <= 20) return "1과목 수처리공정";
-      if (qid >= 21 && qid <= 40) return "2과목 수질분석 및 관리";
-      if (qid >= 41 && qid <= 60) return "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
-      if (qid >= 61 && qid <= 80) return "4과목 정수시설 수리학";
+      if(qid >= 1 && qid <= 20) return "1과목 수처리공정";
+      if(qid >= 21 && qid <= 40) return "2과목 수질분석 및 관리";
+      if(qid >= 41 && qid <= 60) return "3과목 설비운영(기계ㆍ장치 또는 계측기 등)";
+      if(qid >= 61 && qid <= 80) return "4과목 정수시설 수리학";
       return "";
     }
     
@@ -627,11 +596,11 @@
           "선택한 답: " + processedOptions[userAnswers[index]] :
           "선택한 답: 없음";
         detailsDiv.innerHTML = "";
-        if (q.details && q.details.length > 0) {
+        if(q.details && q.details.length > 0) {
           q.details.forEach(detail => {
             detail.split("\n").forEach(line => {
               line = line.trim();
-              if (line) {
+              if(line) {
                 const p = document.createElement("p");
                 p.textContent = line;
                 detailsDiv.appendChild(p);
@@ -645,20 +614,14 @@
           const btn = document.createElement("button");
           btn.textContent = option;
           btn.className = "option-btn";
-          if (option.length > 20) {
-            btn.classList.add("long-option");
-            btn.style.gridColumn = "span 2";
-          } else {
-            btn.classList.add("short-option");
-          }
-          if (userAnswers[index] === idx) {
-            btn.classList.add("selected");
-          }
+          if(option.length > 20) { btn.classList.add("long-option"); btn.style.gridColumn = "span 2"; }
+          else { btn.classList.add("short-option"); }
+          if(userAnswers[index] === idx) { btn.classList.add("selected"); }
           btn.addEventListener("click", function() {
-            if (currentMode === "practice") {
-              if (userAnswers[index] !== null) return;
+            if(currentMode === "practice") {
+              if(userAnswers[index] !== null) return;
               userAnswers[index] = idx;
-              if (idx === q.answer - 1) {
+              if(idx === q.answer - 1) {
                 feedbackDiv.style.color = "#5cb85c";
                 feedbackDiv.textContent = "정답입니다!";
               } else {
@@ -676,9 +639,7 @@
         });
         updateNavigation();
         updateNavTable();
-      } catch (error) {
-        console.error("showQuestion 에러:", error);
-      }
+      } catch(error) { console.error("showQuestion 에러:", error); }
     }
     
     function updateNavigation() {
@@ -688,41 +649,28 @@
     
     function updateNavTable() {
       navTable.innerHTML = "";
-      for (let i = 0; i < questions.length; i++) {
+      for(let i = 0; i < questions.length; i++) {
         const btn = document.createElement("button");
         btn.textContent = i + 1;
         btn.className = "nav-btn";
-        if (userAnswers[i] !== null) {
-          if (currentMode === "practice") {
+        if(userAnswers[i] !== null) {
+          if(currentMode === "practice") {
             btn.style.background = (userAnswers[i] === questions[i].answer - 1) ? "#007bff" : "#d9534f";
           } else {
             btn.style.background = "#add8e6";
           }
-        } else {
-          btn.style.background = "#f0f0f0";
-        }
-        if (i === currentQuestionIndex) {
-          btn.classList.add("current");
-        }
-        btn.addEventListener("click", function() {
-          showQuestion(i);
-        });
+        } else { btn.style.background = "#f0f0f0"; }
+        if(i === currentQuestionIndex) { btn.classList.add("current"); }
+        btn.addEventListener("click", function() { showQuestion(i); });
         navTable.appendChild(btn);
       }
     }
     
-    prevBtn.addEventListener("click", function() {
-      if (currentQuestionIndex > 0) {
-        showQuestion(currentQuestionIndex - 1);
-      }
-    });
-    nextBtn.addEventListener("click", function() {
-      if (currentQuestionIndex < questions.length - 1) {
-        showQuestion(currentQuestionIndex + 1);
-      }
-    });
+    prevBtn.addEventListener("click", function() { if(currentQuestionIndex > 0) { showQuestion(currentQuestionIndex - 1); } });
+    nextBtn.addEventListener("click", function() { if(currentQuestionIndex < questions.length - 1) { showQuestion(currentQuestionIndex + 1); } });
     
     /* 채점 결과 모달 처리 */
+    let latestResult = null;
     submitBtn.addEventListener("click", function() {
       prevBtn.style.visibility = "hidden";
       nextBtn.style.visibility = "hidden";
@@ -746,7 +694,7 @@
       questions.forEach((q, idx) => {
         const subj = getSubjectName(q.id);
         let processedOptions = processOptions(q.options);
-        if (userAnswers[idx] !== null && userAnswers[idx] === q.answer - 1) {
+        if(userAnswers[idx] !== null && userAnswers[idx] === q.answer - 1) {
           score++;
           correctBySubject[subj].push(q.id);
         } else {
@@ -759,38 +707,92 @@
         }
       });
       
-      let resultHTML = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>`;
+      latestResult = { score, total: questions.length, wrongBySubject, correctBySubject };
+      
+      // 채점 결과 모달 상단에 과목별 요약 테이블 생성
+      let summaryHTML = `<table style="width:100%; border-collapse: collapse;">
+        <tr>
+          <th style="border:1px solid #ddd; padding:8px;">과목</th>
+          <th style="border:1px solid #ddd; padding:8px;">오답 수</th>
+        </tr>`;
       const subjects = ["1과목 수처리공정", "2과목 수질분석 및 관리", "3과목 설비운영(기계ㆍ장치 또는 계측기 등)", "4과목 정수시설 수리학"];
       subjects.forEach(subj => {
-        resultHTML += `<h3>${subj}</h3>`;
-        if (wrongBySubject[subj].length > 0) {
-          resultHTML += `<p>틀린 문제 번호: ${wrongBySubject[subj].map(item => item.id).join(", ")}</p>`;
-          wrongBySubject[subj].forEach(item => {
-            resultHTML += `<p style="text-align:left;"><strong>문제 ${item.id}:</strong> ${item.question}</p>`;
-            resultHTML += `<p style="text-align:left;"><em>내 선택:</em> ${item.selected} | <em>정답:</em> ${item.correct}</p><hr>`;
-          });
-        } else {
-          resultHTML += `<p>틀린 문제 없음</p>`;
-        }
-        if (correctBySubject[subj].length > 0) {
-          resultHTML += `<p>맞은 문제 번호: ${correctBySubject[subj].join(", ")}</p>`;
-        } else {
-          resultHTML += `<p>맞은 문제 없음</p>`;
-        }
+        summaryHTML += `<tr>
+          <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-result" data-subject="${subj}">${subj}</span></td>
+          <td style="border:1px solid #ddd; padding:8px;">${wrongBySubject[subj].length}</td>
+        </tr>`;
       });
+      summaryHTML += `</table>`;
       
-      saveQuizResult(score, questions.length, wrongBySubject, correctBySubject);
+      let resultHTML = `<p><strong>총 점수: ${score} / ${questions.length}</strong></p>` + summaryHTML;
       resultModalContent.innerHTML = resultHTML;
       document.getElementById("result-modal-overlay").style.display = "flex";
+      
+      // 과목 클릭 이벤트 등록 (채점 결과 모달)
+      const subjectEls = document.querySelectorAll(".subject-click-result");
+      subjectEls.forEach(el => {
+        el.addEventListener("click", function() {
+          const subj = this.getAttribute("data-subject");
+          showResultSubjectDetails(subj);
+        });
+      });
     });
+    
+    // 채점 결과 모달에서 과목 상세 내역 보기
+    function showResultSubjectDetails(subject) {
+      let detailsHTML = `<div style="display:flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0;">${subject} 상세 내역</h2>
+        <button id="result-back-to-summary-btn" style="padding:8px 12px; background:#0d6efd; color:#fff; border:none; border-radius:6px; cursor:pointer;">요약으로 돌아가기</button>
+      </div>`;
+      const wrongList = latestResult.wrongBySubject[subject] || [];
+      if(wrongList.length > 0) {
+        detailsHTML += `<ul style="margin-left:20px; padding-left:0; list-style:none; text-align:left;">`;
+        wrongList.forEach(item => {
+          let processedQuestion = item.question.replace(/^\d+\.\s*/, "");
+          detailsHTML += `<li style="margin-bottom:8px;">
+            <strong>문제 ${item.id}:</strong> ${processedQuestion}<br>
+            <em>내 선택:</em> ${item.selected} | <em>정답:</em> ${item.correct}
+          </li>`;
+        });
+        detailsHTML += `</ul>`;
+      } else {
+        detailsHTML += `<p style="text-align:left;">틀린 문제 없음</p>`;
+      }
+      resultModalContent.innerHTML = detailsHTML;
+      document.getElementById("result-back-to-summary-btn").addEventListener("click", function() {
+        // 재-display 채점 결과 요약
+        let summaryHTML = `<table style="width:100%; border-collapse: collapse;">
+          <tr>
+            <th style="border:1px solid #ddd; padding:8px;">과목</th>
+            <th style="border:1px solid #ddd; padding:8px;">오답 수</th>
+          </tr>`;
+        const subjects = ["1과목 수처리공정", "2과목 수질분석 및 관리", "3과목 설비운영(기계ㆍ장치 또는 계측기 등)", "4과목 정수시설 수리학"];
+        subjects.forEach(subj => {
+          summaryHTML += `<tr>
+            <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-result" data-subject="${subj}">${subj}</span></td>
+            <td style="border:1px solid #ddd; padding:8px;">${latestResult.wrongBySubject[subj].length}</td>
+          </tr>`;
+        });
+        summaryHTML += `</table>`;
+        let resultHTML = `<p><strong>총 점수: ${latestResult.score} / ${latestResult.total}</strong></p>` + summaryHTML;
+        resultModalContent.innerHTML = resultHTML;
+        // 재부착 이벤트 리스너
+        const subjectEls = document.querySelectorAll(".subject-click-result");
+        subjectEls.forEach(el => {
+          el.addEventListener("click", function() {
+            const subj = this.getAttribute("data-subject");
+            showResultSubjectDetails(subj);
+          });
+        });
+      });
+    }
     
     /* 학습 통계 모달 처리 */
     function showStatsModal() {
       const results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
       let statsHTML = '<h2>학습 기록 요약</h2>';
-      if (results.length === 0) {
-        statsHTML += '<p>저장된 결과가 없습니다.</p>';
-      } else {
+      if(results.length === 0) { statsHTML += '<p>저장된 결과가 없습니다.</p>'; }
+      else {
         results.forEach((result, index) => {
           statsHTML += `<div style="margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px; text-align:left;">
             <div style="display:flex; align-items:center; justify-content: space-between;">
@@ -801,40 +803,24 @@
             <p>점수: ${result.score} / ${result.total}</p>
             <table style="width:100%; border-collapse: collapse;">
               <tr>
-                <th style="border: 1px solid #ddd; padding: 8px;">과목</th>
-                <th style="border: 1px solid #ddd; padding: 8px;">오답 수</th>
+                <th style="border:1px solid #ddd; padding:8px;">과목</th>
+                <th style="border:1px solid #ddd; padding:8px;">오답 수</th>
               </tr>
               <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">
-                  <span class="subject-click" data-session-index="${index}" data-subject="1과목 수처리공정" style="cursor:pointer; color:blue; text-decoration:underline;">
-                    1과목 수처리공정
-                  </span>
-                </td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["1과목 수처리공정"] ? result.wrongBySubject["1과목 수처리공정"].length : 0}</td>
+                <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-stats" data-session-index="${index}" data-subject="1과목 수처리공정" style="cursor:pointer; color:blue; text-decoration:underline;">1과목 수처리공정</span></td>
+                <td style="border:1px solid #ddd; padding:8px;">${result.wrongBySubject["1과목 수처리공정"] ? result.wrongBySubject["1과목 수처리공정"].length : 0}</td>
               </tr>
               <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">
-                  <span class="subject-click" data-session-index="${index}" data-subject="2과목 수질분석 및 관리" style="cursor:pointer; color:blue; text-decoration:underline;">
-                    2과목 수질분석 및 관리
-                  </span>
-                </td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["2과목 수질분석 및 관리"] ? result.wrongBySubject["2과목 수질분석 및 관리"].length : 0}</td>
+                <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-stats" data-session-index="${index}" data-subject="2과목 수질분석 및 관리" style="cursor:pointer; color:blue; text-decoration:underline;">2과목 수질분석 및 관리</span></td>
+                <td style="border:1px solid #ddd; padding:8px;">${result.wrongBySubject["2과목 수질분석 및 관리"] ? result.wrongBySubject["2과목 수질분석 및 관리"].length : 0}</td>
               </tr>
               <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">
-                  <span class="subject-click" data-session-index="${index}" data-subject="3과목 설비운영(기계ㆍ장치 또는 계측기 등)" style="cursor:pointer; color:blue; text-decoration:underline;">
-                    3과목 설비운영(기계ㆍ장치 또는 계측기 등)
-                  </span>
-                </td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"] ? result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"].length : 0}</td>
+                <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-stats" data-session-index="${index}" data-subject="3과목 설비운영(기계ㆍ장치 또는 계측기 등)" style="cursor:pointer; color:blue; text-decoration:underline;">3과목 설비운영(기계ㆍ장치 또는 계측기 등)</span></td>
+                <td style="border:1px solid #ddd; padding:8px;">${result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"] ? result.wrongBySubject["3과목 설비운영(기계ㆍ장치 또는 계측기 등)"].length : 0}</td>
               </tr>
               <tr>
-                <td style="border: 1px solid #ddd; padding: 8px;">
-                  <span class="subject-click" data-session-index="${index}" data-subject="4과목 정수시설 수리학" style="cursor:pointer; color:blue; text-decoration:underline;">
-                    4과목 정수시설 수리학
-                  </span>
-                </td>
-                <td style="border: 1px solid #ddd; padding: 8px;">${result.wrongBySubject["4과목 정수시설 수리학"] ? result.wrongBySubject["4과목 정수시설 수리학"].length : 0}</td>
+                <td style="border:1px solid #ddd; padding:8px;"><span class="subject-click-stats" data-session-index="${index}" data-subject="4과목 정수시설 수리학" style="cursor:pointer; color:blue; text-decoration:underline;">4과목 정수시설 수리학</span></td>
+                <td style="border:1px solid #ddd; padding:8px;">${result.wrongBySubject["4과목 정수시설 수리학"] ? result.wrongBySubject["4과목 정수시설 수리학"].length : 0}</td>
               </tr>
             </table>
           </div>`;
@@ -846,31 +832,29 @@
       statsModalContent.innerHTML = statsHTML;
       statsModalOverlay.style.display = "flex";
       
-      // 과목 클릭 이벤트 등록
-      const subjectElements = document.querySelectorAll('.subject-click');
-      subjectElements.forEach(el => {
-        el.addEventListener('click', function() {
-          const sessionIndex = this.getAttribute('data-session-index');
-          const subject = this.getAttribute('data-subject');
-          showSubjectDetails(sessionIndex, subject);
+      // 과목 클릭 이벤트 등록 (학습 통계 모달)
+      const subjectEls = document.querySelectorAll(".subject-click-stats");
+      subjectEls.forEach(el => {
+        el.addEventListener("click", function() {
+          const sessionIndex = this.getAttribute("data-session-index");
+          const subject = this.getAttribute("data-subject");
+          showStatsSubjectDetails(sessionIndex, subject);
         });
       });
       
-      // 회차별 데이터 삭제 버튼 이벤트 등록
-      const deleteButtons = document.querySelectorAll('.delete-session-btn');
-      deleteButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
-          const sessionIndex = this.getAttribute('data-session-index');
-          if (confirm("이 회차 데이터를 삭제하시겠습니까?")) {
-            deleteSessionData(sessionIndex);
-          }
+      // 회차별 데이터 삭제 이벤트 등록
+      const deleteBtns = document.querySelectorAll(".delete-session-btn");
+      deleteBtns.forEach(btn => {
+        btn.addEventListener("click", function() {
+          const sessionIndex = this.getAttribute("data-session-index");
+          if(confirm("이 회차 데이터를 삭제하시겠습니까?")) { deleteSessionData(sessionIndex); }
         });
       });
       
-      const clearAllBtn = document.getElementById('clear-all-data-btn');
-      if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', function() {
-          if (confirm("전체 학습 데이터를 삭제하시겠습니까?")) {
+      const clearAllBtn = document.getElementById("clear-all-data-btn");
+      if(clearAllBtn) {
+        clearAllBtn.addEventListener("click", function() {
+          if(confirm("전체 학습 데이터를 삭제하시겠습니까?")) {
             localStorage.removeItem('cbtQuizResults');
             alert("전체 데이터가 삭제되었습니다.");
             showStatsModal();
@@ -887,12 +871,12 @@
       showStatsModal();
     }
     
-    function showSubjectDetails(sessionIndex, subject) {
+    function showStatsSubjectDetails(sessionIndex, subject) {
       const results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
       const result = results[sessionIndex];
       let detailsHTML = `<div style="display:flex; justify-content: space-between; align-items: center;">
         <h2 style="margin: 0;">${subject} 상세 내역 (시도 ${parseInt(sessionIndex) + 1})</h2>
-        <button id="back-to-summary-btn" style="padding:8px 12px; background:#0d6efd; color:#fff; border:none; border-radius:6px; cursor:pointer;">요약으로 돌아가기</button>
+        <button id="stats-back-to-summary-btn" style="padding:8px 12px; background:#0d6efd; color:#fff; border:none; border-radius:6px; cursor:pointer;">요약으로 돌아가기</button>
       </div>`;
       const wrongList = result.wrongBySubject[subject] || [];
       if(wrongList.length > 0) {
@@ -908,10 +892,8 @@
       } else {
         detailsHTML += `<p style="text-align:left;">틀린 문제 없음</p>`;
       }
-      resultModalContent.innerHTML = detailsHTML;
-      resultModalOverlay.style.display = "flex";
-      // 채점 결과 모달 대신 학습 통계 모달로 전환하려면 stats-modal을 사용해도 되지만 여기서는 결과 모달을 재활용합니다.
-      document.getElementById("back-to-summary-btn").addEventListener("click", showStatsModal);
+      statsModalContent.innerHTML = detailsHTML;
+      document.getElementById("stats-back-to-summary-btn").addEventListener("click", showStatsModal);
     }
     
     function processOptions(options) {
@@ -920,8 +902,8 @@
         let splitOptions = option.split(/(?=[①②③④⑤⑥⑦⑧⑨⑩])/);
         splitOptions.forEach(opt => {
           let trimmed = opt.trim();
-          if (trimmed !== "") {
-            if (/^[①②③④⑤⑥⑦⑧⑨⑩](\S)/.test(trimmed)) {
+          if(trimmed !== "") {
+            if(/^[①②③④⑤⑥⑦⑧⑨⑩](\S)/.test(trimmed)) {
               trimmed = trimmed[0] + " " + trimmed.slice(1);
             }
             newOptions.push(trimmed);
@@ -949,8 +931,6 @@
       document.body.classList.remove("modal-open");
       document.getElementById('stats-btn').style.display = "block";
     }
-    goBackBtnResult = document.getElementById("result-go-back-btn");
-    goBackBtnStats = document.getElementById("stats-go-back-btn");
     goBackBtnResult.addEventListener("click", goToModeSelection);
     goBackBtnStats.addEventListener("click", goToModeSelection);
   </script>
