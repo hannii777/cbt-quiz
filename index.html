@@ -44,7 +44,7 @@
       text-align: center;
       cursor: default;
     }
-    /* 오른쪽 상단(원래) 또는 원하는 위치의 로그인/회원가입 버튼 */
+    /* 오른쪽 상단 로그인/회원가입 버튼 */
     #identity-button {
       position: fixed;
       top: 20px;
@@ -72,7 +72,7 @@
       font-size: 1em;
       z-index: 10000;
     }
-    /* 모드 선택 컨테이너 – 원래 디자인 그대로 */
+    /* 모드 선택 컨테이너 */
     #mode-container {
       background: rgba(255, 255, 255, 0.98);
       border-radius: 15px;
@@ -539,6 +539,7 @@
     document.addEventListener("DOMContentLoaded", function() {
       updateIdentityButton();
       createSessionButtons();
+      document.getElementById('stats-btn').addEventListener('click', showDetailedStatistics);
     });
     
     let questions = [];
@@ -899,6 +900,8 @@
       questions = [];
       userAnswers = [];
       currentSession = "";
+      // 모달 종료 후 로그아웃 버튼 다시 보이도록
+      document.body.classList.remove("modal-open");
     }
     goBackBtn.addEventListener("click", goToSessionSelection);
     
@@ -958,7 +961,7 @@
       modalContent.innerHTML = statsHTML;
       modalSessionName.textContent = "학습 통계";
       modalOverlay.style.display = "flex";
-
+      
       // 각 과목 클릭 이벤트 등록
       const subjectElements = document.querySelectorAll('.subject-click');
       subjectElements.forEach(el => {
