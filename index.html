@@ -4,9 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>정수시설운영관리사 CBT</title>
+  <!-- 구글 폰트 (Montserrat) 추가 -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Netlify Identity 위젯 로드 -->
   <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
+    /* 전체 배경 및 기본 스타일 */
     body {
       font-family: 'Montserrat', sans-serif;
       margin: 0;
@@ -25,6 +28,7 @@
       50% { background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
       100% { background: linear-gradient(135deg, #e0eafc, #cfdef3); }
     }
+    /* 상단 헤더 */
     #main-header {
       margin-top: 150px;
       font-size: 28px;
@@ -33,7 +37,7 @@
       text-align: center;
       cursor: default;
     }
-    /* 로그아웃 버튼은 항상 화면 오른쪽 하단에 위치 */
+    /* 오른쪽 하단 로그인/회원가입 버튼 */
     #identity-button {
       position: fixed;
       bottom: 20px;
@@ -96,6 +100,7 @@
       background: #0b5ed7;
       transform: scale(1.05);
     }
+    /* 회차 선택 컨테이너 */
     #session-container {
       max-width: 800px;
       margin: 20px auto;
@@ -116,7 +121,7 @@
       display: grid;
       grid-template-columns: repeat(6, 1fr);
       gap: 15px;
-      background: #fff;
+      background: #ffffff;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -135,7 +140,7 @@
       background: #0b5ed7;
       transform: scale(1.03);
     }
-    /* Quiz 컨테이너는 높이를 auto로 처리하여 내용에 따라 늘어납니다 */
+    /* Quiz 컨테이너: 높이는 내용에 따라 auto로 처리 */
     #quiz-container {
       width: 800px;
       background: #fff;
@@ -172,8 +177,9 @@
       color: #555;
       margin-bottom: 10px;
     }
+    /* 질문 영역에 충분한 아래쪽 여백 추가 */
     #question-area {
-      margin-bottom: 20px;
+      padding-bottom: 150px;
     }
     .details p {
       margin-top: 6px;
@@ -214,15 +220,17 @@
       margin-top: 10px;
       font-weight: bold;
     }
-    /* 내비게이션 버튼은 quiz 컨테이너 아래에 배치 */
+    /* 내비게이션 버튼 영역: Quiz 컨테이너 아래에 위치 */
     #navigation-buttons {
       width: 800px;
-      margin: 0 auto 20px auto;
-      display: flex;
-      justify-content: space-between;
+      margin: 20px auto 20px auto;
+      text-align: center;
+      display: none;
     }
     #navigation-buttons button {
+      margin: 0 10px;
       padding: 10px 20px;
+      font-size: 1em;
       background: #0d6efd;
       color: #fff;
       border: none;
@@ -234,7 +242,7 @@
       background: #ccc;
       cursor: not-allowed;
     }
-    /* 오른쪽 패널 */
+    /* 오른쪽 고정 패널 (네비게이션용) */
     #right-panel {
       position: fixed;
       top: 70px;
@@ -286,7 +294,7 @@
     #submit-btn:hover {
       background: #0b5ed7;
     }
-    /* 모달 스타일 */
+    /* 모달창 스타일 */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -407,12 +415,15 @@
   </style>
 </head>
 <body>
+  <!-- Netlify Identity 초기화 -->
   <script> netlifyIdentity.init(); </script>
   
+  <!-- 로그인 / 회원가입 버튼 -->
   <button id="identity-button" onclick="netlifyIdentity.open()">로그인 / 회원가입</button>
   
   <div id="main-header">정수시설운영관리사 CBT</div>
   
+  <!-- 모드 선택 화면 -->
   <div id="mode-container">
     <p>
       정수시설운영관리사 CBT에 오신 것을 진심으로 환영합니다!<br>
@@ -428,6 +439,7 @@
     </div>
   </div>
   
+  <!-- 회차 선택 화면 -->
   <div id="session-container" style="display: none;">
     <button id="back-to-mode-btn">모드 선택 (이전화면)</button>
     <p id="session-instruction">
@@ -436,6 +448,7 @@
     <div id="session-selection"></div>
   </div>
   
+  <!-- Quiz 컨테이너 -->
   <div id="quiz-container" style="display: none;">
     <button id="back-screen-btn">이전화면</button>
     <div id="session-name"></div>
@@ -449,16 +462,19 @@
     </div>
   </div>
   
+  <!-- 내비게이션 버튼 (Quiz 컨테이너 아래) -->
   <div id="navigation-buttons" style="display: none;">
     <button id="prev-btn">이전 문제</button>
     <button id="next-btn">다음 문제</button>
   </div>
   
+  <!-- 오른쪽 패널 (네비게이션 표 등) -->
   <div id="right-panel" style="display: none;">
     <div id="nav-table"></div>
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
+  <!-- 채점 결과 모달 -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
@@ -477,7 +493,7 @@
   </div>
   
   <script>
-    // 로그인 상태에 따라 버튼 업데이트
+    // 로그인 상태에 따른 버튼 업데이트
     function updateIdentityButton() {
       const identityButton = document.getElementById("identity-button");
       const user = netlifyIdentity.currentUser();
@@ -731,7 +747,6 @@
     submitBtn.addEventListener("click", function() {
       navigationButtons.style.display = "none";
       rightPanel.style.display = "none";
-      // 모달창 열릴 때 로그아웃 버튼을 감춤
       document.getElementById("identity-button").style.visibility = "hidden";
       
       let score = 0;
@@ -809,7 +824,6 @@
         modalOverlay.style.display = "none";
         navigationButtons.style.display = "flex";
         rightPanel.style.display = "block";
-        // 모달 닫힐 때 로그아웃 버튼 다시 보임
         document.getElementById("identity-button").style.visibility = "visible";
       }
     }
