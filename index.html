@@ -494,7 +494,7 @@
     <button class="nav-btn" id="submit-btn">채점하기</button>
   </div>
   
-  <!-- 모달창: 과목별 오답수 박스 제거 -->
+  <!-- 모달창: 오답수 박스 제거 -->
   <div id="modal-overlay">
     <div id="modal">
       <h2>
@@ -910,11 +910,28 @@
         statsHTML += '<p>저장된 결과가 없습니다.</p>';
       } else {
         results.forEach((result, index) => {
-          statsHTML += `<div style="margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:10px;">
+          statsHTML += `<div style="margin-bottom:20px; border-bottom:1px solid #ccc; padding-bottom:10px;">
             <h3>시도 ${index + 1} (${new Date(result.date).toLocaleString()})</h3>
             <p>회차: ${result.session}</p>
-            <p>점수: ${result.score} / ${result.total}</p>
-          </div>`;
+            <p>점수: ${result.score} / ${result.total}</p>`;
+          subjects = ["1과목 수처리공정", "2과목 수질분석 및 관리", "3과목 설비운영(기계ㆍ장치 또는 계측기 등)", "4과목 정수시설 수리학"];
+          subjects.forEach(subj => {
+            const wrongList = result.wrongBySubject[subj] || [];
+            statsHTML += `<h4>${subj} (오답 ${wrongList.length}문제)</h4>`;
+            if (wrongList.length > 0) {
+              statsHTML += `<ul style="margin-left:20px;">`;
+              wrongList.forEach(item => {
+                statsHTML += `<li>
+                  <strong>문제 ${item.id}:</strong> ${item.question}<br>
+                  <em>내 선택:</em> ${item.selected} | <em>정답:</em> ${item.correct}
+                </li>`;
+              });
+              statsHTML += `</ul>`;
+            } else {
+              statsHTML += `<p>틀린 문제 없음</p>`;
+            }
+          });
+          statsHTML += `</div>`;
         });
       }
       modalContent.innerHTML = statsHTML;
