@@ -264,7 +264,7 @@
     }
     #prev-btn { left: 40px; }
     #next-btn { right: 40px; }
-    /* “이전화면” 버튼 */
+    /* “이전화면” 버튼 -> 텍스트를 "모드선택"으로 변경 */
     #back-screen-btn, #back-to-mode-btn {
       position: fixed;
       top: 20px;
@@ -357,19 +357,19 @@
       overflow-y: auto;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    /* 기본 모달 제목은 채점 결과지만, 학습 통계 볼 때 동적으로 변경됩니다 */
+    /* 모달 헤더를 "학습 기록 요약"으로 변경하고 ESC 문구를 오른쪽에 배치 */
     #modal h2 {
       margin-top: 0;
       text-align: left;
       position: relative;
-      padding-right: 30px;
       font-size: 1.25rem;
     }
-    #modal h2 small {
-      display: block;
+    #modal h2 span.esc {
+      float: right;
       font-size: 0.8rem;
-      color: #888;
-      margin-top: 5px;
+    }
+    #modal h2 small {
+      display: none;
     }
     #modal .close-x {
       position: absolute;
@@ -499,15 +499,15 @@
   <div id="modal-overlay">
     <div id="modal">
       <h2>
-        채점 결과<br>
-        <small>(ESC를 누르시면 창을 종료할 수 있습니다!!)</small>
+        학습 기록 요약 <span class="esc">(ESC를 누르시면 창을 종료할 수 있습니다!!)</span>
         <button class="close-x" id="modal-close">&times;</button>
       </h2>
       <div id="modal-session-name" style="font-weight:500; margin-bottom:10px; color:#0d6efd;"></div>
       <div id="modal-content"></div>
       <div class="modal-buttons">
+        <!-- "처음화면" 버튼 텍스트를 "모드선택"으로 변경 -->
         <button id="close-modal">닫기</button>
-        <button id="go-back-btn">처음화면</button>
+        <button id="go-back-btn">모드선택</button>
       </div>
     </div>
   </div>
@@ -633,8 +633,28 @@
     });
     
     backScreenBtn.addEventListener("click", function() {
-      goToSessionSelection();
+      goToModeSelection();
     });
+    
+    // "모드선택" 화면으로 돌아가도록 수정
+    function goToModeSelection() {
+      modalOverlay.style.display = "none";
+      quizContainer.style.display = "none";
+      rightPanel.style.display = "none";
+      prevBtn.style.visibility = "visible";
+      nextBtn.style.visibility = "visible";
+      modeContainer.style.display = "flex";
+      sessionContainer.style.display = "none";
+      mainHeader.textContent = "정수시설운영관리사 CBT";
+      sessionNameDiv.textContent = "";
+      navTable.innerHTML = "";
+      questions = [];
+      userAnswers = [];
+      currentSession = "";
+      document.body.classList.remove("modal-open");
+      document.getElementById('stats-btn').style.display = "block";
+    }
+    goBackBtn.addEventListener("click", goToModeSelection);
     
     function createSessionButtons() {
       sessionSelection.innerHTML = "";
@@ -867,10 +887,11 @@
       // 로컬에 학습 기록 저장
       saveQuizResult(score, questions.length, wrongBySubject, correctBySubject);
       
-      // 채점 결과 모달창 제목을 "채점 결과"에서 "학습 기록 요약"으로 변경
-      document.querySelector("#modal h2").innerHTML = "학습 기록 요약<br><small>(ESC를 누르시면 창을 종료할 수 있습니다!!)</small><button class='close-x' id='modal-close'>&times;</button>";
+      // 모달 헤더를 "학습 기록 요약"으로 설정 (ESC 문구는 오른쪽에 배치)
+      document.querySelector("#modal h2").innerHTML = "학습 기록 요약 <span class='esc'>(ESC를 누르시면 창을 종료할 수 있습니다!!)</span><button class='close-x' id='modal-close'>&times;</button>";
       
-      modalSessionName.textContent = currentSession;
+      // 모달 내의 세션명 텍스트는 지움
+      modalSessionName.textContent = "";
       modalContent.innerHTML = resultHTML;
       modalOverlay.style.display = "flex";
     });
@@ -894,13 +915,14 @@
       }
     });
     
-    function goToSessionSelection() {
+    function goToModeSelection() {
       modalOverlay.style.display = "none";
       quizContainer.style.display = "none";
       rightPanel.style.display = "none";
       prevBtn.style.visibility = "visible";
       nextBtn.style.visibility = "visible";
-      sessionContainer.style.display = "block";
+      modeContainer.style.display = "flex";
+      sessionContainer.style.display = "none";
       mainHeader.textContent = "정수시설운영관리사 CBT";
       sessionNameDiv.textContent = "";
       navTable.innerHTML = "";
@@ -910,7 +932,7 @@
       document.body.classList.remove("modal-open");
       document.getElementById('stats-btn').style.display = "block";
     }
-    goBackBtn.addEventListener("click", goToSessionSelection);
+    goBackBtn.addEventListener("click", goToModeSelection);
     
     // 학습 통계 보기 기능 (요약 + 과목별 상세보기 + 회차별/전체 데이터 삭제)
     function showDetailedStatistics() {
@@ -965,13 +987,13 @@
             </table>
           </div>`;
         });
-        // 전체 데이터 삭제 버튼 추가
+        // 전체 데이터 삭제 버튼 추가 (요약 하단)
         statsHTML += `<button id="clear-all-data-btn" style="margin-top:20px; padding:10px 15px; background:#dc3545; color:#fff; border:none; border-radius:5px; cursor:pointer;">전체 데이터 삭제</button>`;
       }
-      // 모달 헤더를 "학습 기록 요약"으로 변경
-      document.querySelector("#modal h2").innerHTML = "학습 기록 요약<br><small>(ESC를 누르시면 창을 종료할 수 있습니다!!)</small><button class='close-x' id='modal-close'>&times;</button>";
+      // 모달 헤더 변경
+      document.querySelector("#modal h2").innerHTML = "학습 기록 요약 <span class='esc' style='float:right; font-size:0.8rem;'>(ESC를 누르시면 창을 종료할 수 있습니다!!)</span><button class='close-x' id='modal-close'>&times;</button>";
       modalContent.innerHTML = statsHTML;
-      modalSessionName.textContent = "학습 통계";
+      modalSessionName.textContent = "";
       modalOverlay.style.display = "flex";
       
       // 과목 클릭 이벤트 등록
@@ -1021,7 +1043,6 @@
     function showSubjectDetails(sessionIndex, subject) {
       const results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
       const result = results[sessionIndex];
-      // flex 컨테이너로 제목과 버튼 배치 (버튼 오른쪽)
       let detailsHTML = `<div style="display:flex; justify-content: space-between; align-items: center;">
         <h2 style="margin: 0;">${subject} 상세 내역 (시도 ${parseInt(sessionIndex) + 1})</h2>
         <button id="back-to-summary-btn" style="padding:8px 12px; background:#0d6efd; color:#fff; border:none; border-radius:6px; cursor:pointer;">요약으로 돌아가기</button>
@@ -1060,24 +1081,6 @@
       });
       return newOptions;
     }
-    
-    function goToSessionSelection() {
-      modalOverlay.style.display = "none";
-      quizContainer.style.display = "none";
-      rightPanel.style.display = "none";
-      prevBtn.style.visibility = "visible";
-      nextBtn.style.visibility = "visible";
-      sessionContainer.style.display = "block";
-      mainHeader.textContent = "정수시설운영관리사 CBT";
-      sessionNameDiv.textContent = "";
-      navTable.innerHTML = "";
-      questions = [];
-      userAnswers = [];
-      currentSession = "";
-      document.body.classList.remove("modal-open");
-      document.getElementById('stats-btn').style.display = "block";
-    }
-    goBackBtn.addEventListener("click", goToSessionSelection);
     
   </script>
 </body>
