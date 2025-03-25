@@ -40,7 +40,7 @@
       text-align: center;
       cursor: default;
     }
-    /* 우측 상단에 로그인/회원가입 버튼 추가 */
+    /* 우측 상단에 로그인/회원가입 버튼 */
     #identity-button {
       position: fixed;
       top: 20px;
@@ -284,10 +284,10 @@
     #back-to-mode-btn:hover {
       background: #5b636a;
     }
-    /* 오른쪽 고정 패널 */
+    /* 오른쪽 고정 패널 (로그아웃 버튼과 겹치지 않도록 top 값을 70px로 조정) */
     #right-panel {
       position: fixed;
-      top: 20px;
+      top: 70px;
       right: 20px;
       display: none;
       background: #fff;
@@ -336,7 +336,7 @@
     #submit-btn:hover {
       background: #0b5ed7;
     }
-    /* 모달창 스타일 */
+    /* 모달창 스타일 (모달이 모든 요소 위에 표시되도록 z-index 수정) */
     #modal-overlay {
       position: fixed;
       top: 0;
@@ -347,7 +347,7 @@
       display: none;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 20000;
     }
     #modal {
       position: relative;
@@ -842,9 +842,10 @@
     });
     
     submitBtn.addEventListener("click", function() {
-      // 채점 결과 모달이 뜨기 전에 이전/다음 버튼 숨김
+      // 채점 결과 모달이 뜨기 전에 이전/다음 버튼 및 네비게이션 패널 숨김
       prevBtn.style.visibility = "hidden";
       nextBtn.style.visibility = "hidden";
+      rightPanel.style.display = "none";
       
       let score = 0;
       const wrongBySubject = {
@@ -921,6 +922,7 @@
         modalOverlay.style.display = "none";
         prevBtn.style.visibility = "visible";
         nextBtn.style.visibility = "visible";
+        rightPanel.style.display = "block";
       }
     }
     
