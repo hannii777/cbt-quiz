@@ -832,7 +832,8 @@
         } else {
           wrongBySubject[subj].push({
             id: q.id,
-            question: q.question,
+            // 문제 번호 중복 제거: 질문 앞에 이미 번호가 있다면 정규식으로 제거
+            question: q.question.replace(/^\d+\.\s*/, ""),
             selected: userAnswers[idx] !== null ? processedOptions[userAnswers[idx]] : "미응답",
             correct: processedOptions[q.answer - 1]
           });
@@ -846,9 +847,9 @@
         if (wrongBySubject[subj].length > 0) {
           resultHTML += `<p>틀린 문제 번호: ${wrongBySubject[subj].map(item => item.id).join(", ")}</p>`;
           wrongBySubject[subj].forEach(item => {
-            resultHTML += `<p><strong>문제 ${item.id}:</strong> ${item.question}</p>`;
-            resultHTML += `<p>내 선택: ${item.selected}</p>`;
-            resultHTML += `<p>정답: ${item.correct}</p><hr>`;
+            // 여기서 "문제 1:"과 같이 표시할 때, 중복 번호 없이 깔끔하게 표시합니다.
+            resultHTML += `<p style="text-align:left;"><strong>문제 ${item.id}:</strong> ${item.question}</p>`;
+            resultHTML += `<p style="text-align:left;"><em>내 선택:</em> ${item.selected} | <em>정답:</em> ${item.correct}</p><hr>`;
           });
         } else {
           resultHTML += `<p>틀린 문제 없음</p>`;
@@ -905,7 +906,7 @@
     }
     goBackBtn.addEventListener("click", goToSessionSelection);
     
-    // 학습 통계 보기 기능 (요약 + 과목별 상세보기)
+    // 학습 통계 보기 기능 (요약 + 과목별 상세보기 + 데이터 삭제 버튼 추가)
     function showDetailedStatistics() {
       const results = JSON.parse(localStorage.getItem('cbtQuizResults') || "[]");
       let statsHTML = '<h2>학습 기록 요약</h2>';
@@ -957,6 +958,8 @@
             </table>
           </div>`;
         });
+        // 데이터 삭제 버튼 추가
+        statsHTML += `<button id="clear-data-btn" style="margin-top:20px; padding:10px 15px; background:#dc3545; color:#fff; border:none; border-radius:5px; cursor:pointer;">데이터 삭제</button>`;
       }
       modalContent.innerHTML = statsHTML;
       modalSessionName.textContent = "학습 통계";
@@ -971,6 +974,18 @@
           showSubjectDetails(sessionIndex, subject);
         });
       });
+      
+      // 데이터 삭제 버튼 이벤트 등록
+      const clearBtn = document.getElementById('clear-data-btn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function() {
+          if (confirm("모든 학습 데이터를 삭제하시겠습니까?")) {
+            localStorage.removeItem('cbtQuizResults');
+            alert("학습 데이터가 삭제되었습니다.");
+            showDetailedStatistics();
+          }
+        });
+      }
     }
     
     // 상세 내역 보기 함수 (과목별)
@@ -979,11 +994,13 @@
       const result = results[sessionIndex];
       let detailsHTML = `<h2>${subject} 상세 내역 (시도 ${parseInt(sessionIndex) + 1})</h2>`;
       const wrongList = result.wrongBySubject[subject] || [];
-      if(wrongList.length > 0) {
-        detailsHTML += `<ul style="margin-left:20px;">`;
+      if (wrongList.length > 0) {
+        detailsHTML += `<ul style="margin-left:20px; text-align:left;">`;
         wrongList.forEach(item => {
+          // item.question에서 앞에 "1. "과 같이 시작하는 숫자 패턴 제거
+          let processedQuestion = item.question.replace(/^\d+\.\s*/, "");
           detailsHTML += `<li style="margin-bottom:8px;">
-            <strong>문제 ${item.id}:</strong> ${item.question}<br>
+            <strong>문제 ${item.id}:</strong> ${processedQuestion}<br>
             <em>내 선택:</em> ${item.selected} | <em>정답:</em> ${item.correct}
           </li>`;
         });
